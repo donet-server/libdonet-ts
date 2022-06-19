@@ -1,0 +1,8 @@
+# Development
+.idea/
+.vscode/
+*.bkp
+# Build files
+build/
+*.js
+*.log

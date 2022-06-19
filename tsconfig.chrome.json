@@ -1,0 +1,30 @@
+{
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "build", "examples", "tests"],
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es2016",
+    "lib": ["es2019"],
+    /* Modules */
+    "module": "commonjs",
+    "rootDir": "src",
+    "moduleResolution": "node",
+    /* JavaScript Support */
+    "allowJs": false,
+    /* Emit */
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "build",
+    "removeComments": true,
+    "declarationDir": "./build/@types",
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    /* Type Checking */
+    "strict": true,
+    "noImplicitAny": true,
+    "alwaysStrict": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false
+  }
+}
