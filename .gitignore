@@ -1,7 +1,9 @@
 # Development
 .idea/
 .vscode/
+node_modules/
 *.bkp
+*.lock
 # Build files
 build/
 *.js
