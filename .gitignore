@@ -4,6 +4,7 @@
 node_modules/
 *.bkp
 *.lock
+astrond
 # Build files
 build/
 *.js

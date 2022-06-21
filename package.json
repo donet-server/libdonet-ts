@@ -1,7 +1,7 @@
 {
   "name": "libastron-js",
   "version": "0.0.1",
-  "description": "An open source implementation of the Astron server Distributed Class networking system for online MMO games.",
+  "description": "An open source implementation of the OTP/Astron Distributed Class networking system for online MMO games.",
   "main": "build/index.js",
   "types": "build/@types",
   "repository": {
@@ -9,7 +9,10 @@
     "url": "https://github.com/Max-Rodriguez/libastron-js.git"
   },
   "keywords": [
-    "astron", "otp", "implementation", "networking", "mmo", "toontown"
+    "astron",
+    "otp",
+    "networking",
+    "mmo"
   ],
   "author": "Max Rodriguez <max@max-rodriguez.com>",
   "license": "Apache-2.0",
@@ -18,7 +21,11 @@
   },
   "homepage": "https://github.com/Max-Rodriguez/libastron-js",
   "scripts": {
-    "chrome": "tsc -p tsconfig.chrome.json",
-    "node": "tsc -p tsconfig.node.json"
+    "client": "tsc -p tsconfig.chrome.json",
+    "ai": "tsc -p tsconfig.node.json"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^4.7.4"
   }
 }
