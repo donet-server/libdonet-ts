@@ -1,6 +1,6 @@
 {
   "include": ["src/node/*"],
-  "exclude": ["node_modules", "build", "examples", "tests"],
+  "exclude": ["node_modules", "build", "example"],
   "compilerOptions": {
     /* Language and Environment */
     "target": "es2016",
