@@ -1,5 +1,5 @@
 {
-  "include": ["src/node/**/*"],
+  "include": ["src/node/*"],
   "exclude": ["node_modules", "build", "examples", "tests"],
   "compilerOptions": {
     /* Language and Environment */
@@ -7,7 +7,7 @@
     "lib": ["es2019"],
     /* Modules */
     "module": "commonjs",
-    "rootDir": "src",
+    "rootDir": "src/node",
     "moduleResolution": "node",
     /* JavaScript Support */
     "allowJs": false,
