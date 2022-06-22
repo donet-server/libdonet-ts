@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/node/**/*"],
   "exclude": ["node_modules", "build", "examples", "tests"],
   "compilerOptions": {
     /* Language and Environment */
