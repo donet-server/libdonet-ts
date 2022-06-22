@@ -1,6 +1,12 @@
+// Example DC file to test the 'DCParser' module.
+
+// ---- Type definition fields ---- //
+
 typedef uint32 doId;
 typedef uint32 zoneId;
 typedef uint64 channel;
+
+// ---- Example distributed classes ---- //
 
 dclass DistributedTestObject1 {
 	setRequired1(uint32 r = 78) required broadcast ram;
@@ -15,6 +21,8 @@ dclass DistributedTestObject2 {
 	setB2(uint32 test) broadcast;
 	setBRam2(uint32 test) broadcast ram;
 };
+
+// ---- Distributed Class inheritance ---- //
 
 dclass DistributedTestObject3 : DistributedTestObject1 {
 	setDb3(string data) ram db;
@@ -42,6 +50,8 @@ dclass DistributedTestObject5 : DistributedTestObject3 {
 	setFoo(uint16 foo) db;
 };
 
+// ---- Distributed Object Globals ---- //
+
 dclass UberDog1 {
 	request(string what) clsend;
 	response(string what);
@@ -52,6 +62,8 @@ dclass UberDog2 {
 	bar(uint16 d);
 };
 
+// ---- Client Distributed Object ---- //
+
 dclass DistributedClientTestObject {
 	setName(string name) required;
 	setColor(uint8(0-100) r, uint8(0-100) g, uint8(0-100) b) required broadcast ownsend;
@@ -60,6 +72,8 @@ dclass DistributedClientTestObject {
         sendMessageConstraint(string(8-16) msg) clsend ownrecv;
         setColorConstraint(uint8(0-100) r, uint8(0-100) g, uint8(0-100) b) clsend ownrecv;
 };
+
+// ---- Structure field ---- //
 
 struct Block {
 	uint32 blockX;
@@ -72,6 +86,8 @@ dclass DistributedChunk {
 	lastBlock(Block block) ram clrecv airecv;
 	newBlock(Block block) broadcast;
 };
+
+// ---- Distributed Object Database Fields ---- //
 
 dclass DistributedDBTypeTestObject {
 	uint8 db_uint8 db;
