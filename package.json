@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/Max-Rodriguez/libastron-js",
   "scripts": {
-    "client": "tsc -p tsconfig.chrome.json",
-    "ai": "tsc -p tsconfig.node.json"
+    "chrome": "tsc -p tsconfig.chrome.json",
+    "nodejs": "tsc -p tsconfig.node.json"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",

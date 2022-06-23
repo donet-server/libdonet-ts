@@ -1,3 +1,7 @@
 # Example environment files
+node_modules/
+astrond
 package.json
 *.lock
+*.exe
+*.js
