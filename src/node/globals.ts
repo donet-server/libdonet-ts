@@ -13,15 +13,30 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-export enum STATUS { SUCCESS = 202020, FAILURE = 404040 }
+export enum STATUS { SUCCESS = 4194, FAILURE = 5281 }
 
-export const DC_KEYWORDS = [
-    "clsend", "ownsend", "clrecv",
-    "ownrecv", "airecv", "required",
-    "ram", "broadcast", "db"
-]
+export const DC_SPECIFICATION = {
+    KEYWORDS: [
+        "dclass", "struct", "keyword", "typedef"
+    ],
+    DATA_TYPES: [
+        "charType", "intType", "floatType", "sizedType",    // dataType
+        "char",                                             // charType
+        "int8", "int16", "int32", "int64",                  // intType
+        "uint8", "uint16", "uint32", "uint64",              // unsigned intType
+        "float64",                                          // floatType
+        "string", "blob"                                    // sizedType
+    ],
+    FIELD_KEYWORDS: [
+        "clsend", "ownsend", "clrecv", "ownrecv",
+        "airecv", "required", "ram", "broadcast", "db"
+    ],
+    OPERATORS: [
+        "%", "*", "+", "-", "/"
+    ]
+}
 
-export enum MSG_RANGES {
+export enum ASTRON_MESSAGE_RANGES {
     // Client range
     CLIENT_MSG_MIN = 1,
     CLIENT_MSG_MAX = 999,
@@ -39,7 +54,7 @@ export enum MSG_RANGES {
     CONTROL_MSG_MAX = 9999,
 }
 
-export enum MESSAGES {
+export enum ASTRON_MESSAGE_TYPES {
     // Reserved
     RESERVED = 0,
     // Client Messages

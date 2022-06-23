@@ -13,14 +13,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import {_DCPARSER_DEBUG, DC_KEYWORDS, STATUS} from './globals'
+import {_DCPARSER_DEBUG, DC_SPECIFICATION, STATUS} from './globals'
 import * as fs from 'node:fs'
 
 export enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
 
 export class DCParser {
     private fileContent: string = ""
-    private objects: Array<Array<string | Array<any>>> = []
+    private parsedObjects: Array<Array<string | Array<any>>> = []
     private tempObject: Array<string | Array<any>> = []
 
     private cursor: number = 0
@@ -39,13 +39,21 @@ export class DCParser {
     private notify(msg: string) { console.log(`${this.constructor.name}: ${msg}`) }
 
     // Public main method
-    public parse_file(dcFilePath: string): STATUS {
+    public parse_file(dcFilePath: string): Array<Array<string | Array<any>>> | STATUS {
         this.read_dc_file(dcFilePath)
         for (let i = 0; i < this.lines.length; i++) {
             const status = this.parse_line()
             if (status === STATUS.FAILURE) return status
         }
-        return STATUS.SUCCESS
+        // If debug flag is set, print out results
+        if (_DCPARSER_DEBUG) {
+            this.notify(`DC FILE PARSE COMPLETE!`)
+            this.notify(`Distributed Class Objects: \n${JSON.stringify(this.classLookup, null, 4)}`)
+            this.notify(`DC File Structure: \n${JSON.stringify(this.parsedObjects)}`)
+        }
+        const DCFile = this.parsedObjects
+        this.reset_properties()
+        return DCFile
     }
 
     // Print an error with line/column point
@@ -107,8 +115,8 @@ export class DCParser {
 
     // Validate DC field keyword token
     private validate_dc_keyword(keyword: string): STATUS {
-        for (let i = 0; i < DC_KEYWORDS.length; i++) {
-            if (keyword === DC_KEYWORDS[i]) return STATUS.SUCCESS
+        for (let i = 0; i < DC_SPECIFICATION.FIELD_KEYWORDS.length; i++) {
+            if (keyword === DC_SPECIFICATION.FIELD_KEYWORDS[i]) return STATUS.SUCCESS
         }
         this.parser_err(`ERROR: Invalid DC field keyword '${keyword}'.`)
         return STATUS.FAILURE
@@ -143,7 +151,7 @@ export class DCParser {
                             const temp = this.read_until_either([',', ' '])
                             if (temp === STATUS.FAILURE) return temp
                             // @ts-ignore  ('temp' response type checked, don't worry)
-                            const tClass = this.objects[this.classLookup[temp[0]]]
+                            const tClass = this.parsedObjects[this.classLookup[temp[0]]]
 
                             if (!tClass) {
                                 this.parser_err(`ERROR: NULL TClass ${JSON.stringify(tClass)}`)
@@ -163,7 +171,7 @@ export class DCParser {
                     }
                     // @ts-ignore  ('className' cannot be type 'number'; checked above)
                     this.tempObject = ["dclass", className, inherited]
-                    this.classLookup[className] = this.objects.length
+                    this.classLookup[className] = this.parsedObjects.length
 
                     this.scope++
                     if (_DCPARSER_DEBUG) this.notify(`ENTERED SCOPE: ${this.scope}`)
@@ -191,7 +199,7 @@ export class DCParser {
                     if (structName === STATUS.FAILURE) return structName
                     // @ts-ignore  ('structName' always string; type checked above)
                     this.tempObject = ["struct", structName, []]
-                    this.structLookup[structName] = this.objects.length
+                    this.structLookup[structName] = this.parsedObjects.length
 
                     this.scope++
                     if (_DCPARSER_DEBUG) this.notify(`ENTERED SCOPE: ${this.scope}`)
@@ -211,7 +219,7 @@ export class DCParser {
             if (this.line[0] === '}') {
                 this.scope--
                 if (_DCPARSER_DEBUG) this.notify(`EXITED SCOPE: ${this.scope}`)
-                this.objects.push(this.tempObject)
+                this.parsedObjects.push(this.tempObject)
                 return STATUS.SUCCESS
             }
             // Check file tab style
@@ -408,5 +416,11 @@ export class DCParser {
                 this.parser_err(`ERROR: Invalid DC object field found; Please check your DC file.`)
                 return STATUS.FAILURE
         }
+    }
+    private reset_properties() {
+        this.cursor = 0; this.lineCursor = -1; this.line = ""; this.lines = [];
+        this.fileContent = ""; this.parsedObjects = []; this.tempObject = []; this.scope = 0;
+        this.tabMethod = TAB_METHOD.UNKNOWN; this.classLookup = {}; this.fieldLookup = [];
+        this.structLookup = {}; this.reverseFieldLookup = {}; this.typedefs = {};
     }
 }
