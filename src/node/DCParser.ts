@@ -23,8 +23,8 @@ export class DCParser {
     private objects: Array<Array<string | Array<any>>> = []
     private tempObject: Array<string | Array<any>> = []
 
-    private index: number = 0
-    private lineIndex: number = -1
+    private cursor: number = 0
+    private lineCursor: number = -1
     private lines: Array<string> = [""]
     private line: string = ""
     private tabMethod: TAB_METHOD = TAB_METHOD.UNKNOWN
@@ -34,7 +34,6 @@ export class DCParser {
     private structLookup: {[k: string]: number} = {}
     private fieldLookup: Array<any> = []
     private reverseFieldLookup: {[k: string]: number} = {}
-    private classFields: {[k: string]: number} = {}
     private typedefs: {[k: string]: any} = {}
 
     private notify(msg: string) { console.log(`${this.constructor.name}: ${msg}`) }
@@ -52,7 +51,7 @@ export class DCParser {
     // Print an error with line/column point
     private parser_err(msg: string) {
         this.notify(msg)
-        this.notify(`Parser error occurred at: Line ${this.lineIndex}, Column ${this.index}.`)
+        this.notify(`Parser error occurred at: Line ${this.lineCursor}, Column ${this.cursor}.`)
     }
 
     // Read DC file from file system
@@ -65,14 +64,14 @@ export class DCParser {
     private read_until(char: string): string | STATUS {
         if (!char) char = ' '
         let token = ""
-        while (this.line[this.index] !== char) {
-            if (this.line.length < (this.index + 1)) {
+        while (this.line[this.cursor] !== char) {
+            if (this.line.length < (this.cursor + 1)) {
                 this.parser_err(`ERROR: DC file missing delimiter token character; Check semicolons?`)
                 return STATUS.FAILURE
             }
-            token += this.line[this.index++]
+            token += this.line[this.cursor++]
         }
-        this.index++ // set cursor past delimiter character
+        this.cursor++ // set cursor past delimiter character
         return token
     }
 
@@ -80,16 +79,16 @@ export class DCParser {
     private read_until_either(chars: Array<string>): Array<string> | STATUS {
         let token = ""
         while (true) {
-            if (this.line.length < (this.index + 1)) {
+            if (this.line.length < (this.cursor + 1)) {
                 this.parser_err(`ERROR: DC file missing delimiter token character; Check semicolons?`)
                 return STATUS.FAILURE
             }
             // If any delimiter character reached, break loop
-            if (chars.indexOf(this.line[this.index]) > -1) break
+            if (chars.indexOf(this.line[this.cursor]) > -1) break
             // else, add to token string
-            token += this.line[this.index++]
+            token += this.line[this.cursor++]
         }
-        const delimiter = this.line[this.index++] // get delimiter it reached
+        const delimiter = this.line[this.cursor++] // get delimiter it reached
         return [token, delimiter]
     }
 
@@ -102,9 +101,9 @@ export class DCParser {
 
     // Parse line at current line index
     private parse_line(): STATUS {
-        this.lineIndex++
-        this.index = 0
-        this.line = this.lines[this.lineIndex]
+        this.lineCursor++
+        this.cursor = 0
+        this.line = this.lines[this.lineCursor]
 
         // If empty or line comment, skip line.
         if (this.line.length < 1 || this.line[0] === '/') return STATUS.SUCCESS
@@ -116,8 +115,39 @@ export class DCParser {
 
             switch (token) {
                 case 'dclass':
+                    const className = this.read_until(' ')
+                    if (className === STATUS.FAILURE) return className
                     this.scope++
-                    // TODO: Parse Distributed Class objects
+                    const inherited = []
+
+                    if (this.line[this.cursor] === ':') { // if inheritance operator
+                        this.cursor += 2 // skip operator
+
+                        while (true) {
+                            const temp = this.read_until_either([',', ' '])
+                            if (temp === STATUS.FAILURE) return temp
+                            // @ts-ignore  ('temp' response type checked, don't worry)
+                            const tClass = this.objects[this.classLookup[temp[0]]]
+
+                            if (!tClass) {
+                                this.parser_err(`ERROR: NULL TClass ${JSON.stringify(tClass)}`)
+                                continue
+                            }
+                            for (let i = 0; i < tClass[2].length; i++) {
+                                inherited.push(tClass[2][i])
+                                this.reverseFieldLookup[
+                                    `${className}::${tClass[2][i][1]}`
+                                    // @ts-ignore  ('temp' response type checked, don't worry)
+                                    ] = this.reverseFieldLookup[`${temp[0]}::${tClass[2][i][1]}`]
+                            }
+                            this.cursor++
+                            // @ts-ignore  ('temp' response type checked, don't worry)
+                            if (temp[1] === ' ' || this.line[this.cursor] === '{') break
+                        }
+                    }
+                    // @ts-ignore  ('className' cannot be type 'number'; checked above)
+                    this.tempObject = ["dclass", className, inherited]
+                    this.classLookup[className] = this.objects.length
                     break
                 case 'typedef':
                     let dataType = this.read_until(' ')
@@ -182,10 +212,10 @@ export class DCParser {
                 }
             }
             // Move index past 'n' tabs; 'n' defined by the scope its in
-            this.index = this.tabMethod * this.scope
+            this.cursor = this.tabMethod * this.scope
 
             // If next character is still a space, tab is probably uneven.
-            if (this.line[this.index] === ' ') {
+            if (this.line[this.cursor] === ' ') {
                 this.parser_err("ERROR: DC file tab spacing is invalid or uneven; Check DC file tab spaces?")
                 return STATUS.FAILURE
             }
@@ -219,7 +249,7 @@ export class DCParser {
                     while (true) {
                         const temp = this.read_until_either([',', ';'])
                         if (temp === STATUS.FAILURE) return temp
-                        this.index++
+                        this.cursor++
                         // @ts-ignore  (response type checked above)
                         components.push(temp[0])
                         // @ts-ignore  (same warn)
@@ -239,13 +269,13 @@ export class DCParser {
                         modifiers = this.tempObject[2][cIndex][2]
                         params = params.concat(this.tempObject[2][cIndex][3])
                     }
-                    modifiers.push[Symbol.hasInstance]("Morph") // TODO: probably wrong
+                    // modifiers.push["morph"] - this is in the inspired source code, but what does it do?
 
-                    this.reverseFieldLookup[`${this.tempObject[1]}::${fieldName}`] = this.fieldLookup.length;
+                    this.reverseFieldLookup[`${this.tempObject[1]}::${fieldName}`] = this.fieldLookup.length
                     this.fieldLookup.push([
                         this.tempObject[1], "function", fieldName, modifiers, params, components
-                    ]);
-                    return ["function", fieldName, modifiers, params, components];
+                    ])
+                    return ["function", fieldName, modifiers, params, components]
                 }
 
                 let dcKeywords = []
@@ -274,12 +304,72 @@ export class DCParser {
                 return [dataType, name, dcKeywords]
 
             case '(': // function field
-                // TODO: Parse function fields
-                break
+                // @ts-ignore  ('res' type checked above)
+                const funcName: string = res[0]
+                const parameters: Array<string> = []
+
+                while (true) {
+                    let parameter = this.read_until_either([',', '(', ')'])
+                    if (parameter === STATUS.FAILURE) return parameter
+
+                    // @ts-ignore  (type checked above)
+                    while (parameter[0] === ' ') parameter[0] = parameter[0].slice(1)
+
+                    // @ts-ignore  (type checked above)
+                    if (parameter[0].indexOf(' ') > -1) {
+                        // @ts-ignore  (type checked above)
+                        let p = parameter[0].split(' ')
+                        let l = p[p.length - 1]
+
+                        if ((l * 1) !== l) {
+                            // If it's a number, it's probably just weirdly spaced inline math.
+                            // If not, we need to strip off the property name.
+                            // @ts-ignore  (type checked above)
+                            parameter[0] = p.slice(0, -1).join(' ')
+                        }
+                    }
+                    // @ts-ignore  (type checked above)
+                    if (parameter[1] === '(') {
+                        this.read_until(')')
+
+                        if (this.line[this.cursor++] === '[') {
+                            this.cursor += 2 // move cursor ahead
+                            let ind = this.read_until(']')
+                            // @ts-ignore  (type checked above)
+                            parameter[0] += `[${ind}]`
+                        }
+                        // @ts-ignore  (type checked above)
+                        parameters.push(parameter[0])
+                        if (this.line[this.cursor++] === ')') break
+
+                    } else {
+                        // @ts-ignore  (type checked above)
+                        parameters.push(parameter[0]);
+                        // @ts-ignore  (type checked above)
+                        if (parameter[1] === ')') break
+                        this.cursor++
+                    }
+                }
+                const keywords: Array<string> = []
+
+                if (this.line[this.cursor++] === ' ') {
+                    // DC field keywords ahead, parse them!
+                    while (true) {
+                        const keyword = this.read_until_either([' ', ';'])
+                        if (keyword === STATUS.FAILURE) return keyword
+                        // @ts-ignore  (this is tiring)
+                        keywords.push(keyword[0])
+                        // @ts-ignore
+                        if (keyword[1] === ';') break
+                    }
+                }
+                this.reverseFieldLookup[`${this.tempObject[1]}::${funcName}`] = this.fieldLookup.length
+                this.fieldLookup.push([this.tempObject[1], "function", funcName, keywords, parameters])
+                return ["function", funcName, keywords, parameters]
+
             default:
                 this.parser_err(`ERROR: Invalid DC object field found; Please check your DC file.`)
                 return STATUS.FAILURE
         }
-        return STATUS.FAILURE
     }
 }
