@@ -113,13 +113,26 @@ export class DCParser {
         return STATUS.FAILURE
     }
 
-    // Validate DC field keyword token
-    private validate_dc_keyword(keyword: string): STATUS {
-        for (let i = 0; i < DC_SPECIFICATION.FIELD_KEYWORDS.length; i++) {
-            if (keyword === DC_SPECIFICATION.FIELD_KEYWORDS[i]) return STATUS.SUCCESS
-        }
-        this.parser_err(`ERROR: Invalid DC field keyword '${keyword}'.`)
+    // Validate DC language token
+    private validate_dc_token(token: string, specification: Array<string>): STATUS {
+        if (_DCPARSER_DEBUG) this.notify(`MATCHING TO SPECIFICATION: ${specification}`)
+
+        for (let i = 0; i < specification.length; i++)
+            if (token === specification[i]) return STATUS.SUCCESS
+
+        this.parser_err(`ERROR: Invalid DC language token found: '${token}'.`)
         return STATUS.FAILURE
+    }
+
+    // Validate identifier name (compare to reserved keywords)
+    private validate_identifier(identifier: string) {
+        for (let keywordType in DC_SPECIFICATION)
+            for (let i = 0; i < keywordType.length; i++)
+                if (identifier === keywordType[i]) {
+                    this.parser_err(`ERROR: Identifier '${identifier}' cannot be a keyword.`)
+                    return STATUS.FAILURE
+                }
+        return STATUS.SUCCESS
     }
 
     // Parse line at current line index
@@ -137,10 +150,18 @@ export class DCParser {
             const token = this.read_until(' ')
             if (token === STATUS.FAILURE) return token
 
+            // @ts-ignore  Validate DC language keyword
+            let valid = this.validate_dc_token(token, DC_SPECIFICATION.KEYWORDS)
+            if (valid === STATUS.FAILURE) return valid
+
             switch (token) {
                 case 'dclass':
                     const className = this.read_until(' ')
                     if (className === STATUS.FAILURE) return className
+                    // @ts-ignore  Validate identifier
+                    const cNameValid = this.validate_identifier(className)
+                    if (cNameValid === STATUS.FAILURE) return cNameValid
+
                     const inherited = []
 
                     if (this.line[this.cursor] === ':') { // if inheritance operator
@@ -181,6 +202,10 @@ export class DCParser {
                     let typeName = this.read_until(';')
                     let array_clip: Array<string> = []
 
+                    // @ts-ignore  Validate type name
+                    const tNameValid = this.validate_identifier(typeName)
+                    if (tNameValid === STATUS.FAILURE) return tNameValid
+
                     // get array index if typedef is array
                     // @ts-ignore
                     if (typeName[ typeName.length - 1 ] == ']') {
@@ -209,7 +234,7 @@ export class DCParser {
                     this.parser_err("WARN: This implementation currently does not support DC file imports.")
                     break
                 default:
-                    this.parser_err("ERROR: Invalid or unsupported token found; Please check your DC file.")
+                    this.parser_err(`ERROR: Unsupported token found, '${token}'; Please check your DC file.`)
                     return STATUS.FAILURE
             }
         }
@@ -271,6 +296,10 @@ export class DCParser {
                 let fieldName = this.read_until_either([' ', ';'])
                 if (fieldName === STATUS.FAILURE) return fieldName
 
+                // @ts-ignore  Validate identifier
+                const fNameValid = this.validate_identifier(fieldName[0])
+                if (fNameValid === STATUS.FAILURE) return fNameValid
+
                 // @ts-ignore  (response type checked above)
                 if (fieldName[0] === ':') {
                     fieldName = dataType // first token is the name in this case
@@ -318,7 +347,7 @@ export class DCParser {
                         if (keyword === STATUS.FAILURE) return keyword
 
                         // @ts-ignore  Validate DC field keyword
-                        let valid: STATUS = this.validate_dc_keyword(keyword[0])
+                        let valid = this.validate_dc_token(keyword[0], DC_SPECIFICATION.FIELD_KEYWORDS)
                         if (valid === STATUS.FAILURE) return valid
 
                         // @ts-ignore  (array items always 'string'; type checked above)
@@ -345,12 +374,15 @@ export class DCParser {
                 const funcName: string = res[0]
                 const parameters: Array<string> = []
 
+                const funcNameValid = this.validate_identifier(funcName)
+                if (funcNameValid === STATUS.FAILURE) return funcNameValid
+
                 while (true) {
                     let parameter = this.read_until_either([',', '(', ')'])
                     if (parameter === STATUS.FAILURE) return parameter
 
                     // @ts-ignore  (type checked above)
-                    while (parameter[0] === ' ') parameter[0] = parameter[0].slice(1)
+                    while (parameter[1] === ' ') parameter[0] = parameter.slice(1)
 
                     // @ts-ignore  (type checked above)
                     if (parameter[0].indexOf(' ') > -1) {
@@ -398,7 +430,7 @@ export class DCParser {
                         if (keyword === STATUS.FAILURE) return keyword
 
                         // @ts-ignore  Validate DC field keyword
-                        let valid: STATUS = this.validate_dc_keyword(keyword[0])
+                        let valid = this.validate_dc_token(keyword[0], DC_SPECIFICATION.FIELD_KEYWORDS)
                         if (valid === STATUS.FAILURE) return valid
 
                         // @ts-ignore  (this is tiring)

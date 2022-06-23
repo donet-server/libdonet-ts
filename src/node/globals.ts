@@ -13,11 +13,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-export enum STATUS { SUCCESS = 4194, FAILURE = 5281 }
+export enum STATUS { SUCCESS = 41094, FAILURE = 52081 }
 
 export const DC_SPECIFICATION = {
     KEYWORDS: [
-        "dclass", "struct", "keyword", "typedef"
+        "dclass", "struct", "typedef", "keyword", "from"
     ],
     DATA_TYPES: [
         "charType", "intType", "floatType", "sizedType",    // dataType
@@ -210,4 +210,4 @@ export enum ASTRON_MESSAGE_TYPES {
     CONTROL_LOG_MESSAGE        = 9014
 }
 
-export const _DCPARSER_DEBUG = false
+export let _DCPARSER_DEBUG = false
