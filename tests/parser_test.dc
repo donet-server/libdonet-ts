@@ -69,8 +69,8 @@ dclass DistributedClientTestObject {
 	setColor(uint8(0-100) r, uint8(0-100) g, uint8(0-100) b) required broadcast ownsend;
 	requestKill() clsend airecv;
 	sendMessage(string msg) clsend ownrecv;
-        sendMessageConstraint(string(8-16) msg) clsend ownrecv;
-        setColorConstraint(uint8(0-100) r, uint8(0-100) g, uint8(0-100) b) clsend ownrecv;
+	sendMessageConstraint(string(8-16) msg) clsend ownrecv;
+	setColorConstraint(uint8(0-100) r, uint8(0-100) g, uint8(0-100) b) clsend ownrecv;
 };
 
 // ---- Structure field ---- //
@@ -101,8 +101,6 @@ dclass DistributedDBTypeTestObject {
 	char db_char db;
 	float64 db_float64 db;
 	string db_string db;
-	string(32) db_fixstr db;
 	blob db_blob db;
-	blob(16) db_fixblob db;
 	db_complex(Block named[], Block[3]) db;
 };

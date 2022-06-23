@@ -1,6 +1,8 @@
 {
   "include": ["src/chrome/*"],
-  "exclude": ["node_modules", "build", "example"],
+  "exclude": ["node_modules", "build",
+    "tests"
+  ],
   "compilerOptions": {
     /* Language and Environment */
     "target": "es2016",

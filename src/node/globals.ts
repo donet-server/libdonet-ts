@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-export enum STATUS { SUCCESS = 1, FAILURE = 0 }
+export enum STATUS { SUCCESS = 202020, FAILURE = 404040 }
 
 export const DC_KEYWORDS = [
     "clsend", "ownsend", "clrecv",
@@ -194,3 +194,5 @@ export enum MESSAGES {
     CONTROL_SET_CON_URL        = 9013,
     CONTROL_LOG_MESSAGE        = 9014
 }
+
+export const _DCPARSER_DEBUG = false
