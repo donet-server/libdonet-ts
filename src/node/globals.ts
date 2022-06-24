@@ -13,6 +13,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+export enum ESC_COLOR {
+    RESET = "\u001b[0m",
+    RED = "\u001b[31;1m",
+    YELLOW = "\u001b[33;1m",
+    GREEN = "\u001b[32;1m",
+    CYAN = "\u001b[36;1m",
+    MAGENTA = "\u001b[35;1m"
+}
+export function color_string(str: string, color: ESC_COLOR): string {
+    return `${color}${str}${ESC_COLOR.RESET}`
+}
 export enum STATUS { SUCCESS = 41094, FAILURE = 52081 }
 
 export const DC_SPECIFICATION = {
@@ -210,4 +221,6 @@ export enum ASTRON_MESSAGE_TYPES {
     CONTROL_LOG_MESSAGE        = 9014
 }
 
-export let _DCPARSER_DEBUG = false
+export const MODULE_DEBUG_FLAGS = {
+    DC_PARSER: false
+}
