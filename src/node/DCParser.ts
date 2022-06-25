@@ -442,21 +442,25 @@ export class DCParser {
                     if (parameter === STATUS.FAILURE) return parameter
 
                     // @ts-ignore  (type checked above)
-                    while (parameter[1] === ' ') parameter[0] = parameter.slice(1)
-
-                    // @ts-ignore  (type checked above)
-                    if (parameter[0].indexOf(' ') > -1) {
+                    while (parameter[0] === ' ') {
                         // @ts-ignore  (type checked above)
-                        let p = parameter[0].split(' ')
-                        let l = p[p.length - 1]
+                        parameter = parameter.slice(1)
 
-                        if ((l * 1) !== l) {
-                            // If it's a number, it's probably just weirdly spaced inline math.
-                            // If not, we need to strip off the property name.
+                        // @ts-ignore  (type checked above)
+                        if (parameter[0].indexOf(' ') > -1) {
                             // @ts-ignore  (type checked above)
-                            parameter[0] = p.slice(0, -1).join(' ')
+                            let p = parameter[0].split(' ')
+                            let l = p[p.length - 1]
+
+                            if ((l * 1) !== l) {
+                                // If it's a number, it's probably just weirdly spaced inline math.
+                                // If not, we need to strip off the property name.
+                                // @ts-ignore  (type checked above)
+                                parameter[0] = p.slice(0, -1).join(' ')
+                            }
                         }
                     }
+
                     // @ts-ignore  (type checked above)
                     if (parameter[1] === '(') {
                         this.read_until(')')
