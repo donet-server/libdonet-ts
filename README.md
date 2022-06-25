@@ -5,7 +5,7 @@ libastron-js
 
 ![](https://img.shields.io/github/issues-pr-closed/Max-Rodriguez/libastron-js) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/libastron-js) ![](https://img.shields.io/github/license/Max-Rodriguez/libastron-js)
 
-An open source implementation for the Astron server Distributed Class networking system for Javascript clients running on either Chrome or NodeJS environments. Written in TypeScript.
+An open source implementation of the Astron server Distributed Class protocol for Javascript clients running on either Chrome or NodeJS environments. Written in TypeScript.
 
 This project is brand new, and will not be a complete project for a long time.
 
