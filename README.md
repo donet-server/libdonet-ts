@@ -41,8 +41,8 @@ yarn add libastron-chrome
 Contributing
 ==========
 
-We encourage the community to submit code contributions via pull requests!
-Before writing your first contribution, please read the [contributing guidelines](CONTRIBUTING.md).
+We encourage the community to submit code contributions by creating pull requests from your own fork of the project!
+Before writing your first contribution, please read the project [contributing guidelines](CONTRIBUTING.md).
 
 Feel free to join our community [discord server](https://discord.gg/reSNux5X3K) for live chat / development help.
 
