@@ -1,2 +1,2 @@
-## This directory contains an example Panda3D Python client / Astron server environment for testing.
-#### Note: This is not part of the project source code!
+## This directory contains an example Python client / AI astron environment for testing.
+#### Note: This is not part of the package source code!
