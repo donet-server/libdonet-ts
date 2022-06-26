@@ -3,7 +3,7 @@
 libastron-js
 ==========
 
-![](https://img.shields.io/github/issues-pr-closed/Max-Rodriguez/libastron-js) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/libastron-js) ![](https://img.shields.io/github/license/Max-Rodriguez/libastron-js)
+![](https://img.shields.io/discord/990738981706666064?color=blue&label=Discord&logo=discord&logoColor=white) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/libastron-js) ![](https://img.shields.io/github/license/Max-Rodriguez/libastron-js)
 
 An open source implementation of the Astron server Distributed Class protocol for Javascript clients running on either Chrome or NodeJS environments. Written in TypeScript.
 
@@ -37,6 +37,14 @@ Or if you're using the **yarn** (NPM-based) package manager:
 yarn add libastron-node
 yarn add libastron-chrome
 ```
+
+Contributing
+==========
+
+We encourage the community to submit code contributions via pull requests!
+Before writing your first contribution, please read the [contributing guidelines](CONTRIBUTING.md).
+
+Feel free to join our community [discord server](https://discord.gg/reSNux5X3K) for live chat / development help.
 
 Astron Environment Diagram
 ==========
