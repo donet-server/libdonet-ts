@@ -1,4 +1,6 @@
 astrond
+astrondb.yml
 *.log
 *.json
 *.exe
+logs/
