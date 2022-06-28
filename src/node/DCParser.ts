@@ -13,8 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import {MODULE_DEBUG_FLAGS, DC_SPECIFICATION} from './globals'
-import {ESC_COLOR, STATUS, color_string} from './globals'
+import {color_string, DC_SPECIFICATION, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS} from './globals'
 import * as fs from 'node:fs'
 
 export enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
@@ -296,10 +295,15 @@ export class DCParser {
         else {
             // Check if end of scope
             if (this.line[0] === '}') {
-                this.scope--
-                if (this._DEBUG_) this.notify(`EXITED SCOPE: ${this.scope}`)
-                this.parsedObjects.push(this.tempObject)
-                return STATUS.SUCCESS
+                if (this.line[1] === ';') { // enforce ';' delimiter (to follow DC specification)
+                    this.scope--
+                    if (this._DEBUG_) this.notify(`EXITED SCOPE: ${this.scope}`)
+                    this.parsedObjects.push(this.tempObject)
+                    return STATUS.SUCCESS
+                } else {
+                    this.parser_err("Missing delimiter semicolon after end of scope.")
+                    return STATUS.FAILURE
+                }
             }
             // Check file tab style
             if (this.tabMethod === TAB_METHOD.UNKNOWN) {
