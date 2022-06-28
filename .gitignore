@@ -5,7 +5,6 @@ node_modules/
 *.bkp
 *.dtmp
 *.lock
-astrond
 # Build files
 build/
 *.js

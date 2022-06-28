@@ -1,0 +1,4 @@
+astrond
+*.log
+*.json
+*.exe
