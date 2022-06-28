@@ -195,7 +195,8 @@ export class DCParser {
         this.line = this.lines[this.lineCursor]
 
         // If empty or line comment, skip line.
-        if (this.line.length < 1 || this.line[0] === '/') return STATUS.SUCCESS
+        if (this.line.length < 1) return STATUS.SUCCESS
+        if (this.line[0] === '/' && this.line[1] === '/') return STATUS.SUCCESS
 
         // If in global scope ..
         if (this.scope === 0) {
