@@ -24,7 +24,7 @@
   "homepage": "https://github.com/Max-Rodriguez/astron.libts",
   "scripts": {
     "chrome": "tsc -p tsconfig.chrome.json",
-    "nodejs": "tsc -p tsconfig.node.json"
+    "node": "tsc -p tsconfig.node.json"
   },
   "devDependencies": {
     "@types/node": "^18.15.2",
