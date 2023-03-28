@@ -1,9 +1,9 @@
-<img src="docs/libastron-js.png" align="right" width="50%"/>
+<img src="docs/astron.libts.png" align="right" width="50%"/>
 
-libastron-js
+astron.libts
 ==========
 
-![](https://img.shields.io/discord/990738981706666064?color=blue&label=Discord&logo=discord&logoColor=white) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/libastron-js) ![](https://img.shields.io/github/license/Max-Rodriguez/libastron-js)
+![](https://img.shields.io/discord/1066973060357443644?color=blue&label=Discord&logo=discord&logoColor=white) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/libastron-js) ![](https://img.shields.io/github/license/Max-Rodriguez/libastron-js)
 
 An open source implementation of the Astron server Distributed Class protocol for Javascript clients running on either Chrome or NodeJS environments. Written in TypeScript.
 
@@ -19,8 +19,8 @@ Installation
 ==========
 
 The libastron-js repository will provide 2 different NPM packages once it reaches it's first release:
-- `libastron-node`
-- `libastron-chrome`
+- `astron.libts.node`
+- `astron.libts.chrome`
 
 When the project matures (and a chrome version is written), a github workflow will handle publishing both packages.
 
@@ -28,14 +28,14 @@ The chrome release of the project will most likely have to be installed as a nod
 
 The following steps show how it _**will be**_ to install either package after the first release.
 ```shell
-npm install libastron-node
-npm install libastron-chrome
+npm install astron.libts.node
+npm install astron.libts.chrome
 ```
 
 Or if you're using the **yarn** (NPM-based) package manager:
 ```shell
-yarn add libastron-node
-yarn add libastron-chrome
+yarn add astron.libts.node
+yarn add astron.libts.chrome
 ```
 
 Contributing
@@ -44,7 +44,7 @@ Contributing
 We encourage the community to submit code contributions by creating pull requests from your own fork of the project!
 Before writing your first contribution, please read the project [contributing guidelines](CONTRIBUTING.md).
 
-Feel free to join our community [discord server](https://discord.gg/reSNux5X3K) for live chat / development help.
+Feel free to join our community [discord server](https://discord.gg/T6jGjEutfy) for live chat / development help.
 
 Astron Environment Diagram
 ==========

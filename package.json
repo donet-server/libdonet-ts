@@ -1,25 +1,27 @@
 {
-  "name": "libastron-js",
-  "version": "0.0.1",
-  "description": "An open source implementation of the OTP/Astron Distributed Class networking system for online MMO games.",
+  "name": "astron.libts",
+  "version": "0.1.0",
+  "description": "An open source implementation of the Astron real-time object networking protocol.",
   "main": "build/index.js",
   "types": "build/@types",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Max-Rodriguez/libastron-js.git"
+    "url": "https://github.com/Max-Rodriguez/astron.libts.git"
   },
   "keywords": [
     "astron",
+    "libastron",
     "otp",
     "networking",
-    "mmo"
+    "mmo",
+    "distributed"
   ],
-  "author": "Max Rodriguez <max@max-rodriguez.com>",
+  "author": "Max Rodriguez <max@vulkray.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/Max-Rodriguez/libastron-js/issues"
+    "url": "https://github.com/Max-Rodriguez/astron.libts/issues"
   },
-  "homepage": "https://github.com/Max-Rodriguez/libastron-js",
+  "homepage": "https://github.com/Max-Rodriguez/astron.libts",
   "scripts": {
     "chrome": "tsc -p tsconfig.chrome.json",
     "nodejs": "tsc -p tsconfig.node.json"
