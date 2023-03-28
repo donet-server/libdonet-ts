@@ -20,7 +20,7 @@ export function color_string(str: string, color: ESC_COLOR): string {
 }
 export enum STATUS { SUCCESS = 41094, FAILURE = 52081 }
 
-export const DC_SPECIFICATION = {
+export const DC_SYNTAX = {
     KEYWORDS: [
         "dclass", "struct", "typedef", "keyword", "from"
     ],
@@ -43,20 +43,20 @@ export const DC_SPECIFICATION = {
 
 export enum ASTRON_MESSAGE_RANGES {
     // Client range
-    CLIENT_MSG_MIN = 1,
-    CLIENT_MSG_MAX = 999,
+    CLIENT_MSG_MIN              = 1,
+    CLIENT_MSG_MAX              = 999,
     // ClientAgent range
-    CLIENTAGENT_MSG_MIN = 1000,
-    CLIENTAGENT_MSG_MAX = 1999,
+    CLIENTAGENT_MSG_MIN         = 1000,
+    CLIENTAGENT_MSG_MAX         = 1999,
     // StateServer range
-    STATESERVER_MSG_MIN = 2000,
-    STATESERVER_MSG_MAX = 2999,
+    STATESERVER_MSG_MIN         = 2000,
+    STATESERVER_MSG_MAX         = 2999,
     // DatabaseServer range
-    DBSERVER_MSG_MIN = 3000,
-    DBSERVER_MSG_MAX = 3999,
+    DBSERVER_MSG_MIN            = 3000,
+    DBSERVER_MSG_MAX            = 3999,
     // Control range
-    CONTROL_MSG_MIN = 9000,
-    CONTROL_MSG_MAX = 9999,
+    CONTROL_MSG_MIN             = 9000,
+    CONTROL_MSG_MAX             = 9999,
 }
 
 export enum ASTRON_MESSAGE_TYPES {
@@ -135,7 +135,7 @@ export enum ASTRON_MESSAGE_TYPES {
     STATESERVER_OBJECT_DELETE_FIELDS_RAM = 2031,
     STATESERVER_OBJECT_DELETE_RAM        = 2032,
 
-    // StateServer visibility Messages
+    // StateServer Messages
     STATESERVER_OBJECT_SET_LOCATION                       = 2040,
     STATESERVER_OBJECT_CHANGING_LOCATION                  = 2041,
     STATESERVER_OBJECT_ENTER_LOCATION_WITH_REQUIRED       = 2042,
@@ -156,24 +156,22 @@ export enum ASTRON_MESSAGE_TYPES {
     STATESERVER_OBJECT_GET_OWNER_RESP                     = 2065,
     STATESERVER_OBJECT_ENTER_INTEREST_WITH_REQUIRED       = 2066,
     STATESERVER_OBJECT_ENTER_INTEREST_WITH_REQUIRED_OTHER = 2067,
+    STATESERVER_OBJECT_GET_ZONE_OBJECTS                   = 2100,
+    STATESERVER_OBJECT_GET_ZONES_OBJECTS                  = 2102,
+    STATESERVER_OBJECT_GET_CHILDREN                       = 2104,
+    STATESERVER_OBJECT_GET_ZONE_COUNT                     = 2110,
+    STATESERVER_OBJECT_GET_ZONE_COUNT_RESP                = 2111,
+    STATESERVER_OBJECT_GET_ZONES_COUNT                    = 2112,
+    STATESERVER_OBJECT_GET_ZONES_COUNT_RESP               = 2113,
+    STATESERVER_OBJECT_GET_CHILD_COUNT                    = 2114,
+    STATESERVER_OBJECT_GET_CHILD_COUNT_RESP               = 2115,
+    STATESERVER_OBJECT_DELETE_ZONE                        = 2120,
+    STATESERVER_OBJECT_DELETE_ZONES                       = 2122,
+    STATESERVER_OBJECT_DELETE_CHILDREN                    = 2124,
+    STATESERVER_GET_ACTIVE_ZONES                          = 2125,
+    STATESERVER_GET_ACTIVE_ZONES_RESP                     = 2126,
 
-    // StateServer parent-method Messages
-    STATESERVER_OBJECT_GET_ZONE_OBJECTS     = 2100,
-    STATESERVER_OBJECT_GET_ZONES_OBJECTS    = 2102,
-    STATESERVER_OBJECT_GET_CHILDREN         = 2104,
-    STATESERVER_OBJECT_GET_ZONE_COUNT       = 2110,
-    STATESERVER_OBJECT_GET_ZONE_COUNT_RESP  = 2111,
-    STATESERVER_OBJECT_GET_ZONES_COUNT      = 2112,
-    STATESERVER_OBJECT_GET_ZONES_COUNT_RESP = 2113,
-    STATESERVER_OBJECT_GET_CHILD_COUNT      = 2114,
-    STATESERVER_OBJECT_GET_CHILD_COUNT_RESP = 2115,
-    STATESERVER_OBJECT_DELETE_ZONE          = 2120,
-    STATESERVER_OBJECT_DELETE_ZONES         = 2122,
-    STATESERVER_OBJECT_DELETE_CHILDREN      = 2124,
-    STATESERVER_GET_ACTIVE_ZONES            = 2125,
-    STATESERVER_GET_ACTIVE_ZONES_RESP       = 2126,
-
-    // DBSS object Messages
+    // Database StateServer Messages
     DBSS_OBJECT_ACTIVATE_WITH_DEFAULTS       = 2200,
     DBSS_OBJECT_ACTIVATE_WITH_DEFAULTS_OTHER = 2201,
     DBSS_OBJECT_GET_ACTIVATED                = 2207,
@@ -182,7 +180,7 @@ export enum ASTRON_MESSAGE_TYPES {
     DBSS_OBJECT_DELETE_FIELDS_RAM            = 2231,
     DBSS_OBJECT_DELETE_DISK                  = 2232,
 
-    // DatabaseServer Messages
+    // Database Server Messages
     DBSERVER_CREATE_OBJECT                    = 3000,
     DBSERVER_CREATE_OBJECT_RESP               = 3001,
     DBSERVER_OBJECT_GET_FIELD                 = 3010,

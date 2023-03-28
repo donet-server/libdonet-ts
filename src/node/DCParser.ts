@@ -7,7 +7,7 @@
     with this source code in a file named "LICENSE."
 */
 
-import {color_string, DC_SPECIFICATION, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS} from './globals'
+import {color_string, DC_SYNTAX, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS} from './globals'
 import * as fs from 'node:fs'
 
 export enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
@@ -134,7 +134,7 @@ export class DCParser {
 
     // Validate identifier name (compare to reserved keywords)
     private validate_identifier(identifier: string): STATUS {
-        for (let keywordType in DC_SPECIFICATION)
+        for (let keywordType in DC_SYNTAX)
             for (let i = 0; i < keywordType.length; i++)
                 if (identifier === keywordType[i]) {
                     this.parser_err(`Identifier '${identifier}' cannot be a keyword.`)
@@ -145,7 +145,7 @@ export class DCParser {
 
     // Validate field data type token
     private validate_dc_data_type(data_type: string): STATUS {
-        let isDataType = this.validate_dc_token(data_type, DC_SPECIFICATION.DATA_TYPES)
+        let isDataType = this.validate_dc_token(data_type, DC_SYNTAX.DATA_TYPES)
 
         if (isDataType === STATUS.FAILURE) {
             // If data type was array, strip and check again.
@@ -159,7 +159,7 @@ export class DCParser {
 
             // Check if the token is squished with an operator
             let operator: string = ''
-            DC_SPECIFICATION.OPERATORS.forEach((value: string) => {
+            DC_SYNTAX.OPERATORS.forEach((value: string) => {
                 if (data_type.includes(value)) operator = value
             });
             if (operator !== '') {
@@ -198,7 +198,7 @@ export class DCParser {
             if (token === STATUS.FAILURE) return token
 
             // @ts-ignore  Validate DC language keyword
-            let valid = this.validate_dc_token(token, DC_SPECIFICATION.KEYWORDS)
+            let valid = this.validate_dc_token(token, DC_SYNTAX.KEYWORDS)
             if (valid === STATUS.FAILURE) return valid
 
             switch (token) {
@@ -406,7 +406,7 @@ export class DCParser {
                         if (keyword === STATUS.FAILURE) return keyword
 
                         // @ts-ignore  Validate DC field keyword
-                        let valid = this.validate_dc_token(keyword[0], DC_SPECIFICATION.FIELD_KEYWORDS)
+                        let valid = this.validate_dc_token(keyword[0], DC_SYNTAX.FIELD_KEYWORDS)
                         if (valid === STATUS.FAILURE) return valid
 
                         // @ts-ignore  (array items always 'string'; type checked above)
@@ -493,7 +493,7 @@ export class DCParser {
                         if (keyword === STATUS.FAILURE) return keyword
 
                         // @ts-ignore  Validate DC field keyword
-                        let valid = this.validate_dc_token(keyword[0], DC_SPECIFICATION.FIELD_KEYWORDS)
+                        let valid = this.validate_dc_token(keyword[0], DC_SYNTAX.FIELD_KEYWORDS)
                         if (valid === STATUS.FAILURE) return valid
 
                         // @ts-ignore  (this is tiring)
