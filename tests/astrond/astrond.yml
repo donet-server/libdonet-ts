@@ -54,5 +54,5 @@ roles:
 
   - type: eventlogger
     bind: 127.0.0.1:7197 # REMEMBER: UDP
-    output: ./logs/el-%Y-%m-%d-%H-%M-%S.log # This is a time format.
+    output: event-logs/el-%Y-%m-%d-%H-%M-%S.log # This is a time format.
     rotate_interval: 1d # Rotate the logs daily.
