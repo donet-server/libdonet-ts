@@ -17,7 +17,7 @@
     "distributed"
   ],
   "author": "Max Rodriguez <max@vulkray.com>",
-  "license": "Apache-2.0",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/Max-Rodriguez/astron.libts/issues"
   },

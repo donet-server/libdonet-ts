@@ -3,7 +3,7 @@
 astron.libts
 ==========
 
-![](https://img.shields.io/discord/1066973060357443644?color=blue&label=Discord&logo=discord&logoColor=white) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/libastron-js) ![](https://img.shields.io/github/license/Max-Rodriguez/libastron-js)
+![](https://img.shields.io/discord/1066973060357443644?color=blue&label=Discord&logo=discord&logoColor=white) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/astron.libts) ![](https://img.shields.io/github/license/Max-Rodriguez/astron.libts)
 
 An open source implementation of the Astron server Distributed Class protocol for Javascript clients running on either Chrome or NodeJS environments. Written in TypeScript.
 
