@@ -43,25 +43,23 @@ export const DC_SYNTAX = {
 
 export enum ASTRON_MESSAGE_RANGES {
     // Client range
-    CLIENT_MSG_MIN              = 1,
-    CLIENT_MSG_MAX              = 999,
+    CLIENT_MSG_MIN          = 1,
+    CLIENT_MSG_MAX          = 999,
     // ClientAgent range
-    CLIENTAGENT_MSG_MIN         = 1000,
-    CLIENTAGENT_MSG_MAX         = 1999,
+    CLIENTAGENT_MSG_MIN     = 1000,
+    CLIENTAGENT_MSG_MAX     = 1999,
     // StateServer range
-    STATESERVER_MSG_MIN         = 2000,
-    STATESERVER_MSG_MAX         = 2999,
+    STATESERVER_MSG_MIN     = 2000,
+    STATESERVER_MSG_MAX     = 2999,
     // DatabaseServer range
-    DBSERVER_MSG_MIN            = 3000,
-    DBSERVER_MSG_MAX            = 3999,
+    DBSERVER_MSG_MIN        = 3000,
+    DBSERVER_MSG_MAX        = 3999,
     // Control range
-    CONTROL_MSG_MIN             = 9000,
-    CONTROL_MSG_MAX             = 9999,
+    CONTROL_MSG_MIN         = 9000,
+    CONTROL_MSG_MAX         = 9999,
 }
 
-export enum ASTRON_MESSAGE_TYPES {
-    // Reserved
-    RESERVED = 0,
+export enum ASTRON_CLIENT_MESSAGES {
     // Client Messages
     CLIENT_HELLO                                = 1,
     CLIENT_HELLO_RESP                           = 2,
@@ -83,7 +81,6 @@ export enum ASTRON_MESSAGE_TYPES {
     CLIENT_REMOVE_INTEREST                      = 203,
 
     // Client Disconnect Messages
-    CLIENT_DISCONNECT_GENERIC                   = 1,
     CLIENT_DISCONNECT_OVERSIZED_DATAGRAM        = 106,
     CLIENT_DISCONNECT_NO_HELLO                  = 107,
     CLIENT_DISCONNECT_INVALID_MSGTYPE           = 108,
@@ -96,7 +93,9 @@ export enum ASTRON_MESSAGE_TYPES {
     CLIENT_DISCONNECT_BAD_VERSION               = 124,
     CLIENT_DISCONNECT_BAD_DCHASH                = 125,
     CLIENT_DISCONNECT_SESSION_OBJECT_DELETED    = 153,
+}
 
+export enum ASTRON_INTERNAL_MESSAGES {
     // ClientAgent Messages
     CLIENTAGENT_SET_STATE             = 1000,
     CLIENTAGENT_SET_CLIENT_ID         = 1001,
