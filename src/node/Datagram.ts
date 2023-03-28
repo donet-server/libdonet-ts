@@ -7,7 +7,9 @@
     with this source code in a file named "LICENSE."
 */
 
-export * as globals from './globals'
-export { Parser } from './Parser'
-export { Datagram } from './Datagram'
-export { Connection } from './Connection'
+import {MODULE_DEBUG_FLAGS} from "./globals";
+import * as net from 'node:net'
+
+export class Datagram {
+    private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DATAGRAM
+}

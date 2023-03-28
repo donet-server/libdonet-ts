@@ -7,6 +7,10 @@
     with this source code in a file named "LICENSE."
 */
 
+// Message Director / Client Agent default ports
+export const MD_PORT: number = 7199
+export const CA_PORT: number = 6667
+
 export enum ESC_COLOR {
     RESET = "\u001b[0m",
     RED = "\u001b[31;1m",
@@ -213,5 +217,7 @@ export enum ASTRON_INTERNAL_MESSAGES {
 }
 
 export const MODULE_DEBUG_FLAGS = {
-    DC_PARSER: false
+    PARSER: false,
+    CONNECTION: false,
+    DATAGRAM: false
 }

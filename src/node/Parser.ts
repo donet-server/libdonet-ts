@@ -12,8 +12,8 @@ import * as fs from 'node:fs'
 
 export enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
 
-export class DCParser {
-    private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DC_PARSER
+export class Parser {
+    private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.PARSER
     private fileContent: string = ""
     private parsedObjects: Array<Array<string | Array<any>>> = []
     private tempObject: Array<string | Array<any>> = []
@@ -371,7 +371,7 @@ export class DCParser {
                     let params: Array<string> = []
 
                     for (let i = 0; i < components.length; i++) {
-                        const cIndex = DCParser.search_object(this.tempObject, components[i]) // old: i + 1
+                        const cIndex = Parser.search_object(this.tempObject, components[i]) // old: i + 1
                         // error handling
                         if (cIndex === STATUS.FAILURE) {
                             this.parser_err(`Component '${components[i]}' doesn't exist.`) // old: i - 1
