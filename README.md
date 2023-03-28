@@ -45,10 +45,3 @@ We encourage the community to submit code contributions by creating pull request
 Before writing your first contribution, please read the project [contributing guidelines](CONTRIBUTING.md).
 
 Feel free to join our community [discord server](https://discord.gg/T6jGjEutfy) for live chat / development help.
-
-Astron Environment Diagram
-==========
-
-This is an abstract diagram; I have not replicated this environment, but it conveys the idea.
-
-![Astron Development Environment Diagram](docs/astron-production-diagram.png)
