@@ -12,4 +12,9 @@ import * as net from 'node:net'
 
 export class Datagram {
     private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DATAGRAM
+
+    private notify(msg: string) {
+        if (!this._DEBUG_) return
+        console.log(`${this.constructor.name}: ${msg}`)
+    }
 }

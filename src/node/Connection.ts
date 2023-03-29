@@ -7,7 +7,9 @@
     with this source code in a file named "LICENSE."
 */
 
-import {MODULE_DEBUG_FLAGS, MD_PORT} from './globals';
+import {MODULE_DEBUG_FLAGS, MD_PORT} from './globals'
+import { Datagram } from './Datagram'
+import * as buffer from 'node:buffer'
 import * as net from 'node:net'
 
 export class Connection {
@@ -18,6 +20,7 @@ export class Connection {
     constructor(host: string = "127.0.0.1", port: number = MD_PORT) {
         this.socket = new net.Socket()
         this.socket.on('connect', this.on_connect)
+        this.socket.on('data', this.read_data)
         this.socket.connect({port: port, host: host})
     }
 
@@ -30,9 +33,14 @@ export class Connection {
         this.notify("TCP socket connected!")
     }
 
+    private read_data(data: buffer.Buffer) {
+        // TODO: handle reading data, use Datagram
+    }
+
     public disconnect() {
-        // TODO: Make sure to do any clean-up later in development.
         this.socket.destroy()
+        this.connected = false
+        this.notify("TCP socket closed!")
     }
     public is_connected(): boolean {
         return this.connected
