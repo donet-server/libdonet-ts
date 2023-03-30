@@ -1,7 +1,7 @@
 {
-  "include": ["src/node/*"],
-  "exclude": ["node_modules", "build",
-    "tests"
+  "include": ["tests/*"],
+  "exclude": [
+    "../node-modules", "tests/example/*"
   ],
   "compilerOptions": {
     /* Language and Environment */
@@ -9,16 +9,15 @@
     "lib": ["es2019"],
     /* Modules */
     "module": "commonjs",
-    "rootDir": "src/node",
+    "rootDir": "tests/",
     "moduleResolution": "node",
     /* JavaScript Support */
     "allowJs": false,
     /* Emit */
-    "declaration": true,
-    "declarationMap": true,
-    "outDir": "dist",
+    "declaration": false,
+    "declarationMap": false,
+    "outDir": "tests",
     "removeComments": true,
-    "declarationDir": "dist/@types",
     /* Interop Constraints */
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -26,7 +25,7 @@
     "strict": true,
     "noImplicitAny": true,
     "alwaysStrict": true,
-    "allowUnusedLabels": false,
-    "allowUnreachableCode": false
+    "allowUnusedLabels": true,
+    "allowUnreachableCode": true
   }
 }

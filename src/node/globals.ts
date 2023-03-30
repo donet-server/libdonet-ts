@@ -6,6 +6,7 @@
     license. You should have received a copy of this license along
     with this source code in a file named "LICENSE."
 */
+export const DIST_TYPE: string = "node"
 
 // Message Director / Client Agent default ports
 export const MD_PORT: number = 7199

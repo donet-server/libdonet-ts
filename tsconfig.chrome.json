@@ -16,9 +16,9 @@
     /* Emit */
     "declaration": true,
     "declarationMap": true,
-    "outDir": "build",
+    "outDir": "dist",
     "removeComments": true,
-    "declarationDir": "./build/@types",
+    "declarationDir": "dist/@types",
     /* Interop Constraints */
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

@@ -11,7 +11,8 @@ from views import DistributedWorld/AI/AE
 from views import DistributedAvatar/AI/AE/OV
 
 // Container for services and top-level stuff.
-dclass Root {};
+dclass Root {
+};
 
 // A simple DOG for anonymous clients to submit
 // username/password credentials and handoff

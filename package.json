@@ -2,8 +2,8 @@
   "name": "astron.libts",
   "version": "0.1.0",
   "description": "An open source implementation of the Astron real-time object networking protocol.",
-  "main": "build/index.js",
-  "types": "build/@types",
+  "main": "dist/index.js",
+  "types": "dist/@types",
   "repository": {
     "type": "git",
     "url": "https://github.com/Max-Rodriguez/astron.libts.git"
@@ -24,7 +24,8 @@
   "homepage": "https://github.com/Max-Rodriguez/astron.libts",
   "scripts": {
     "chrome": "yarn tsc -p tsconfig.chrome.json",
-    "node": "yarn tsc -p tsconfig.node.json"
+    "node": "yarn tsc -p tsconfig.node.json",
+    "tests": "yarn tsc -p tsconfig.tests.json"
   },
   "devDependencies": {
     "@types/node": "^18.15.10",

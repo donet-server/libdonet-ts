@@ -6,6 +6,6 @@ node_modules/
 *.dtmp
 *.lock
 # Build files
-build/
+dist/
 *.js
 *.log
