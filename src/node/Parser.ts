@@ -327,6 +327,9 @@ export class Parser {
                 this.parser_err("DC file tab spacing is invalid or uneven; Check DC file tab spaces?")
                 return STATUS.FAILURE
             }
+            // Check if there is a comment line inside this scope
+            if (this.line[this.cursor] === '/' && this.line[this.cursor + 1] === '/') return STATUS.SUCCESS
+
             // Read DC field in line
             const res = this.read_dc_field()
             if (res === STATUS.FAILURE) return res
