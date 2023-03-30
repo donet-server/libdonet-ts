@@ -220,5 +220,6 @@ export enum ASTRON_INTERNAL_MESSAGES {
 export const MODULE_DEBUG_FLAGS = {
     PARSER: false,
     CONNECTION: false,
-    DATAGRAM: false
+    DATAGRAM: false,
+    LEGACY_HASH: false
 }

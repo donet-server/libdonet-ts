@@ -3,7 +3,7 @@ typedef uint32 doId;
 typedef uint32 zoneId;
 typedef uint64 channel;
 
-// The Python Views for these distributed classes.
+// The views for these distributed classes.
 from views import Root/AI/AE
 from views import AnonymousContact/UD
 from views import LoginManager/AI/AE
