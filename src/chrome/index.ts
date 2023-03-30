@@ -8,6 +8,4 @@
 */
 
 export * as globals from './globals'
-export { Parser } from './Parser'
-export { Datagram } from './Datagram'
-export { Connection } from './Connection'
+export { LegacyHash } from './LegacyHash'

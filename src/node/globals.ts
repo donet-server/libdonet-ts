@@ -46,24 +46,6 @@ export const DC_SYNTAX = {
     ]
 }
 
-export enum ASTRON_MESSAGE_RANGES {
-    // Client range
-    CLIENT_MSG_MIN          = 1,
-    CLIENT_MSG_MAX          = 999,
-    // ClientAgent range
-    CLIENTAGENT_MSG_MIN     = 1000,
-    CLIENTAGENT_MSG_MAX     = 1999,
-    // StateServer range
-    STATESERVER_MSG_MIN     = 2000,
-    STATESERVER_MSG_MAX     = 2999,
-    // DatabaseServer range
-    DBSERVER_MSG_MIN        = 3000,
-    DBSERVER_MSG_MAX        = 3999,
-    // Control range
-    CONTROL_MSG_MIN         = 9000,
-    CONTROL_MSG_MAX         = 9999,
-}
-
 export enum ASTRON_CLIENT_MESSAGES {
     // Client Messages
     CLIENT_HELLO                                = 1,
