@@ -1,1 +1,1 @@
-import * as Astron from './../../build'
+import * as astron from './../../'

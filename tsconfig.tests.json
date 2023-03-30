@@ -1,7 +1,7 @@
 {
-  "include": ["tests/*"],
+  "include": ["tests/*", "tests/example/*"],
   "exclude": [
-    "../node-modules", "tests/example/*"
+    "../node-modules"
   ],
   "compilerOptions": {
     /* Language and Environment */
