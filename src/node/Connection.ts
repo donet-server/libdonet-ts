@@ -7,13 +7,12 @@
     with this source code in a file named "LICENSE."
 */
 
-import {MODULE_DEBUG_FLAGS, MD_PORT} from './globals'
-import { Datagram } from './Datagram'
+import { MODULE_DEBUG_FLAGS, MD_PORT } from './globals'
 import * as buffer from 'node:buffer'
 import * as net from 'node:net'
 
 export class Connection {
-    private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.CONNECTION
+    private __DEBUG__: boolean = MODULE_DEBUG_FLAGS.CONNECTION
     private connected: boolean = false
     private socket: net.Socket
 
@@ -24,20 +23,20 @@ export class Connection {
         this.socket.connect({port: port, host: host})
     }
 
-    private notify(msg: string) {
-        if (!this._DEBUG_) return
+    private notify(msg: string): void {
+        if (!this.__DEBUG__) return
         console.log(`${this.constructor.name}: ${msg}`)
     }
 
-    private on_connect() {
-        this.notify("TCP socket connected!")
+    private on_connect(): void {
+        return
     }
 
-    private read_data(data: buffer.Buffer) {
+    private read_data(data: buffer.Buffer): void {
         // TODO: handle reading data, use Datagram
     }
 
-    public disconnect() {
+    public disconnect(): void {
         this.socket.destroy()
         this.connected = false
         this.notify("TCP socket closed!")

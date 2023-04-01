@@ -7,7 +7,7 @@
     with this source code in a file named "LICENSE."
 */
 
-import {MODULE_DEBUG_FLAGS} from "./globals";
+import { MODULE_DEBUG_FLAGS } from './globals'
 import * as net from 'node:net'
 
 export class Datagram {

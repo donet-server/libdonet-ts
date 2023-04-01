@@ -7,7 +7,7 @@
     with this source code in a file named "LICENSE."
 */
 
-import {color_string, DC_SYNTAX, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS} from './globals'
+import { color_string, DC_SYNTAX, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS } from './globals'
 import * as error from './Errors'
 import * as fs from 'node:fs'
 
@@ -39,7 +39,7 @@ export class Parser {
     }
 
     // Public main method
-    public parse_file(dcFilePath: string): Array<Array<string | Array<any>>> | STATUS {
+    public parse_file(dcFilePath: string): Array<Array<string | Array<any>>> {
         this.read_dc_file(dcFilePath)
         for (let i = 0; i < this.lines.length; i++)
             this.parse_line()
