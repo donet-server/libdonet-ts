@@ -2,8 +2,6 @@ import * as astron from './../' // import our own project
 
 // Enable parser debug output
 astron.globals.MODULE_DEBUG_FLAGS.PARSER = true
-
-const globals = astron.globals
 const parser = new astron.Parser()
 
 // Run full test DC file (3000 lines)
