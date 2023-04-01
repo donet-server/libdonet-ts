@@ -203,5 +203,5 @@ export const MODULE_DEBUG_FLAGS = {
     PARSER: false,
     CONNECTION: false,
     DATAGRAM: false,
-    LEGACY_HASH: false
+    OBJECT_REPO: false
 }

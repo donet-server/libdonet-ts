@@ -8,6 +8,7 @@
 */
 
 import {color_string, DC_SYNTAX, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS} from './globals'
+import * as error from './Errors'
 import * as fs from 'node:fs'
 
 export enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
@@ -40,15 +41,14 @@ export class Parser {
     // Public main method
     public parse_file(dcFilePath: string): Array<Array<string | Array<any>>> | STATUS {
         this.read_dc_file(dcFilePath)
-        for (let i = 0; i < this.lines.length; i++) {
-            const status = this.parse_line()
-            if (status === STATUS.FAILURE) return status
-        }
-        if (this._DEBUG_) this.notify(color_string('DC FILE PARSE COMPLETE!', ESC_COLOR.GREEN))
+        for (let i = 0; i < this.lines.length; i++)
+            this.parse_line()
+        if (this._DEBUG_)
+            this.notify(color_string('DC FILE PARSE COMPLETE!', ESC_COLOR.GREEN))
 
-        const DCFile = this.parsedObjects
+        const DC_objects = this.parsedObjects // storing in variable before resetting properties
         this.reset_properties()
-        return DCFile
+        return DC_objects
     }
 
     // Read DC file from file system
@@ -79,13 +79,13 @@ export class Parser {
     }
 
     // Read until it reaches the given delimiter character
-    private read_until(char: string): string | STATUS {
+    private read_until(char: string): string {
         if (!char) char = ' '
         let token: string = ""
         while (this.line[this.cursor] !== char) {
             if (this.line.length < (this.cursor + 1)) {
                 this.parser_err(`DC file missing delimiter token character; Check semicolons?`)
-                return STATUS.FAILURE
+                throw new error.DCFileMissingDelimiter()
             }
             token += this.line[this.cursor]
             this.cursor++
@@ -96,12 +96,12 @@ export class Parser {
     }
 
     // Read until it reaches any delimiter character in array given
-    private read_until_either(chars: Array<string>): Array<string> | STATUS {
+    private read_until_either(chars: Array<string>): Array<string> {
         let token = ""
         while (true) {
             if (this.line.length < (this.cursor + 1)) {
                 this.parser_err(`DC file missing delimiter token character; Check semicolons?`)
-                return STATUS.FAILURE
+                throw new error.DCFileMissingDelimiter()
             }
             // If any delimiter character reached, break loop
             if (chars.indexOf(this.line[this.cursor]) > -1) break
@@ -120,7 +120,7 @@ export class Parser {
     private static search_object(object: Array<string | Array<any>>, name: string): number | STATUS {
         for (let i = 0; i < object[2].length; i++)
             if (name === object[2][i][1].toString()) return i
-        return STATUS.FAILURE
+        return STATUS.FAILURE  // not throwing error here so that we can print the component name
     }
 
     // Validate DC language token
@@ -129,7 +129,7 @@ export class Parser {
             if (token === specification[i]) return STATUS.SUCCESS
 
         this.parser_err(`Invalid DC language token found: '${token}'.`)
-        return STATUS.FAILURE
+        return STATUS.FAILURE // not throwing here, because in one case we check if we're reading an array
     }
 
     // Validate identifier name (compare to reserved keywords)
@@ -138,7 +138,7 @@ export class Parser {
             for (let i = 0; i < keywordType.length; i++)
                 if (identifier === keywordType[i]) {
                     this.parser_err(`Identifier '${identifier}' cannot be a keyword.`)
-                    return STATUS.FAILURE
+                    throw new error.DCFileInvalidIdentifier()
                 }
         return STATUS.SUCCESS
     }
@@ -176,7 +176,7 @@ export class Parser {
                     this.undo_parser_err() // clear first validation error
                     return STATUS.SUCCESS
                 }
-            return STATUS.FAILURE
+            throw new error.DCFileInvalidToken() // OK, it's an invalid data type then
         }
         return STATUS.SUCCESS
     }
@@ -195,19 +195,15 @@ export class Parser {
         // If in global scope ..
         if (this.scope === 0) {
             const token = this.read_until(' ')
-            if (token === STATUS.FAILURE) return token
 
             // @ts-ignore  Validate DC language keyword
-            let valid = this.validate_dc_token(token, DC_SYNTAX.KEYWORDS)
-            if (valid === STATUS.FAILURE) return valid
+            this.validate_dc_token(token, DC_SYNTAX.KEYWORDS)
 
             switch (token) {
                 case 'dclass':
                     const className = this.read_until(' ')
-                    if (className === STATUS.FAILURE) return className
                     // @ts-ignore  Validate identifier
-                    const cNameValid = this.validate_identifier(className)
-                    if (cNameValid === STATUS.FAILURE) return cNameValid
+                    this.validate_identifier(className)
 
                     const inherited = []
 
@@ -217,7 +213,6 @@ export class Parser {
 
                         while (true) {
                             const temp = this.read_until_either([',', ' '])
-                            if (temp === STATUS.FAILURE) return temp
                             // @ts-ignore  ('temp' response type checked, don't worry)
                             const tClass = this.parsedObjects[this.classLookup[temp[0]]]
 
@@ -251,8 +246,7 @@ export class Parser {
                     let array_clip: Array<string> = []
 
                     // @ts-ignore  Validate type name
-                    const tNameValid = this.validate_identifier(typeName)
-                    if (tNameValid === STATUS.FAILURE) return tNameValid
+                    this.validate_identifier(typeName)
 
                     // get array index if typedef is array
                     // @ts-ignore
@@ -269,7 +263,6 @@ export class Parser {
                     break
                 case 'struct':
                     const structName = this.read_until(' ')
-                    if (structName === STATUS.FAILURE) return structName
                     // @ts-ignore  ('structName' always string; type checked above)
                     this.tempObject = ["struct", structName, []]
                     this.structLookup[structName] = this.parsedObjects.length
@@ -283,7 +276,7 @@ export class Parser {
                     break
                 default:
                     this.parser_err(`Unsupported token found, '${token}'; Please check your DC file.`)
-                    return STATUS.FAILURE
+                    throw new error.DCFileInvalidToken()
             }
         }
         // If inside scope ..
@@ -297,7 +290,7 @@ export class Parser {
                     return STATUS.SUCCESS
                 } else {
                     this.parser_err("Missing delimiter semicolon after end of scope.")
-                    return STATUS.FAILURE
+                    throw new error.DCFileMissingDelimiter()
                 }
             }
             // Check file tab style
@@ -316,7 +309,7 @@ export class Parser {
                 else if (this.line[0] === '\t') this.tabMethod = TAB_METHOD.TAB
                 else {
                     this.parser_err("Failed to detect tab method; Check DC file tab spaces?")
-                    return STATUS.FAILURE
+                    throw new error.DCFileInvalidTabSpacing()
                 }
             }
             // Move index past 'n' tabs; 'n' defined by the scope its in
@@ -325,14 +318,13 @@ export class Parser {
             // If next character is still a space, tab is probably uneven.
             if (this.line[this.cursor] === ' ') {
                 this.parser_err("DC file tab spacing is invalid or uneven; Check DC file tab spaces?")
-                return STATUS.FAILURE
+                throw new error.DCFileInvalidTabSpacing()
             }
             // Check if there is a comment line inside this scope
             if (this.line[this.cursor] === '/' && this.line[this.cursor + 1] === '/') return STATUS.SUCCESS
 
             // Read DC field in line
             const res = this.read_dc_field()
-            if (res === STATUS.FAILURE) return res
             // @ts-ignore  (third item will always be Array<any> type)
             this.tempObject[2].push(res)
         }
@@ -341,29 +333,25 @@ export class Parser {
 
     // Parses line with a DC field
     private read_dc_field(): Array<any> | STATUS {
-        const res = this.read_until_either([' ', '('])
-        if (res === STATUS.FAILURE) return res
+        const res: string[] = this.read_until_either([' ', '('])
 
         // @ts-ignore  (response type checked above)
         switch (res[1]) {
             case ' ': // variable field
                 // @ts-ignore  (response type checked above)
-                let dataType = res[0]
-                let fieldName = this.read_until_either([' ', ';'])
-                if (fieldName === STATUS.FAILURE) return fieldName
+                let dataType: string = res[0]
+                let fieldName: string[] = this.read_until_either([' ', ';'])
 
                 // @ts-ignore  (response type checked above)
                 if (fieldName[0] === ':') {
-                    fieldName = dataType // first token is the name in this case
+                    fieldName[0] = dataType // first token is the name in this case
                     // @ts-ignore  Validate identifier
-                    const fNameValid = this.validate_identifier(fieldName)
-                    if (fNameValid === STATUS.FAILURE) return fNameValid
+                    this.validate_identifier(fieldName)
 
                     const components: Array<string> = []
 
                     while (true) {
                         const temp = this.read_until_either([',', ';'])
-                        if (temp === STATUS.FAILURE) return temp
                         this.cursor++
                         // @ts-ignore  (response type checked above)
                         components.push(temp[0])
@@ -378,7 +366,7 @@ export class Parser {
                         // error handling
                         if (cIndex === STATUS.FAILURE) {
                             this.parser_err(`Component '${components[i]}' doesn't exist.`) // old: i - 1
-                            return STATUS.FAILURE
+                            throw new error.DCFileInvalidComponent(components[i])
                         }
                         if (this._DEBUG_) this.notify(`'${components[i]}' at index '${cIndex}'`)
                         modifiers = this.tempObject[2][cIndex][2]
@@ -393,11 +381,9 @@ export class Parser {
                     return ["function", fieldName, modifiers, params, components]
                 }
                 // run validations for regular variable field
-                const typeValid = this.validate_dc_data_type(dataType)
-                if (typeValid === STATUS.FAILURE) return typeValid
+                this.validate_dc_data_type(dataType)
                 // @ts-ignore
-                const fNameValid = this.validate_identifier(fieldName[0])
-                if (fNameValid === STATUS.FAILURE) return fNameValid
+                this.validate_identifier(fieldName[0])
 
                 let dcKeywords = []
                 // @ts-ignore  (index '1' always 'char'; type checked above)
@@ -406,11 +392,9 @@ export class Parser {
                     // DC keywords ahead, parse tokens
                     while (true) {
                         const keyword = this.read_until_either([' ', ';'])
-                        if (keyword === STATUS.FAILURE) return keyword
 
                         // @ts-ignore  Validate DC field keyword
-                        let valid = this.validate_dc_token(keyword[0], DC_SYNTAX.FIELD_KEYWORDS)
-                        if (valid === STATUS.FAILURE) return valid
+                        this.validate_dc_token(keyword[0], DC_SYNTAX.FIELD_KEYWORDS)
 
                         // @ts-ignore  (array items always 'string'; type checked above)
                         dcKeywords.push(keyword[0])
@@ -436,12 +420,10 @@ export class Parser {
                 const funcName: string = res[0]
                 const parameters: Array<string> = []
 
-                const funcNameValid = this.validate_identifier(funcName)
-                if (funcNameValid === STATUS.FAILURE) return funcNameValid
+                this.validate_identifier(funcName)
 
                 while (true) {
-                    let parameter = this.read_until_either([',', '(', ')'])
-                    if (parameter === STATUS.FAILURE) return parameter
+                    let parameter: string[] = this.read_until_either([',', '(', ')'])
 
                     // @ts-ignore  (type checked above)
                     while (parameter[0] === ' ') {
@@ -454,6 +436,7 @@ export class Parser {
                             let p = parameter[0].split(' ')
                             let l = p[p.length - 1]
 
+                            // @ts-ignore  I know this is confusing, but this works! (it checks if the str is a number)
                             if ((l * 1) !== l) {
                                 // If it's a number, it's probably just weirdly spaced inline math.
                                 // If not, we need to strip off the property name.
@@ -493,11 +476,9 @@ export class Parser {
                     // DC field keywords ahead, parse them!
                     while (true) {
                         const keyword = this.read_until_either([' ', ';'])
-                        if (keyword === STATUS.FAILURE) return keyword
 
                         // @ts-ignore  Validate DC field keyword
-                        let valid = this.validate_dc_token(keyword[0], DC_SYNTAX.FIELD_KEYWORDS)
-                        if (valid === STATUS.FAILURE) return valid
+                        this.validate_dc_token(keyword[0], DC_SYNTAX.FIELD_KEYWORDS)
 
                         // @ts-ignore  (this is tiring)
                         keywords.push(keyword[0])
@@ -512,7 +493,7 @@ export class Parser {
 
             default:
                 this.parser_err(`Invalid DC object field found; Please check your DC file.`)
-                return STATUS.FAILURE
+                throw new error.DCFileInvalidField()
         }
     }
     private reset_properties() {
