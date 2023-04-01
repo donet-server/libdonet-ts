@@ -11,7 +11,7 @@ import { color_string, DC_SYNTAX, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS } from '
 import * as error from './Errors'
 import * as fs from 'node:fs'
 
-export enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
+enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
 
 export class Parser {
     private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.PARSER
@@ -53,7 +53,11 @@ export class Parser {
 
     // Read DC file from file system
     private read_dc_file(path: string) {
-        this.fileContent = fs.readFileSync(path, {encoding: 'utf8', flag: 'r'})
+        try {
+            this.fileContent = fs.readFileSync(path, {encoding: 'utf8', flag: 'r'})
+        } catch (err) {
+            throw new error.DCFileNotFound()
+        }
         this.lines = this.fileContent.split('\n')
     }
 

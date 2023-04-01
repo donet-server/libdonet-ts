@@ -13,6 +13,12 @@ export class NotImplemented extends Error {
     }
 }
 
+export class DCFileNotFound extends Error {
+    constructor() {
+        super("The parser tried to open the DC file, but failed. Check file name & permissions?");
+    }
+}
+
 export class DCFileInvalidIdentifier extends Error {
     constructor() {
         super("The parser found an invalid identifier in the DC file." +
