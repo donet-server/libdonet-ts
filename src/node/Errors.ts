@@ -56,3 +56,10 @@ export class DCFileInvalidField extends Error {
         super("The DC file contains a Distributed Class with an invalid field.");
     }
 }
+
+export class AstronConnectionRefused extends Error {
+    constructor() {
+        super("The Connection instance failed to connect to the Astron cluster. " +
+            "Check if the Message Director is up, or if the Client Agent is up and exposed.");
+    }
+}
