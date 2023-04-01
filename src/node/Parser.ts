@@ -12,6 +12,7 @@ import * as error from './Errors'
 import * as fs from 'node:fs'
 
 enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
+const IMPORT_FILE_EXTENSION: string = '.js'
 
 export class Parser {
     private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.PARSER
@@ -83,18 +84,21 @@ export class Parser {
     }
 
     // Read until it reaches the given delimiter character
-    private read_until(char: string): string {
-        if (!char) char = ' '
+    private read_until(char: string = ' ', delimiterCheck: boolean = true): string {
         let token: string = ""
         while (this.line[this.cursor] !== char) {
             if (this.line.length < (this.cursor + 1)) {
-                this.parser_err(`DC file missing delimiter token character; Check semicolons?`)
+                // if delimiterCheck disabled, return without worrying.
+                if (!delimiterCheck) break
+                // delimiterCheck is enabled, so we're expecting ';' but there isn't.
+                this.parser_err(`DC file missing delimiter token character. Check semicolons?`)
                 throw new error.DCFileMissingDelimiter()
             }
             token += this.line[this.cursor]
             this.cursor++
         }
         this.cursor++ // set cursor past delimiter character
+
         if (this._DEBUG_) this.notify(`read_until(): '${token}' | del: '${char}'`)
         return token
     }
@@ -275,9 +279,27 @@ export class Parser {
                     this.scope++
                     break
                 case 'from':
-                    // TODO: Support DC file python-style 'from' imports.
-                    this.parser_err("This implementation currently does not support DC file imports.", true)
-                    break
+                    const filename = `${this.read_until(' ')}${IMPORT_FILE_EXTENSION}`
+                    const next_token = this.read_until(' ')
+
+                    if (next_token !== "import") {
+                        this.parser_err(`Invalid token found, '${next_token}'.` +
+                                        'Expected \'import\'. See DC file specification.')
+                        throw new error.DCFileInvalidToken()
+                    }
+                    /* The `class_import` string should look something like this:
+                            DistributedAvatar/AI/OV/AE
+                    */
+                    const class_import = this.read_until(' ', false) // skip delimiter check since it's python style
+                    let import_components: string[] = class_import.split('/')
+                    const class_name: string = import_components[0]
+
+                    if (import_components.length !== 1)
+                        for (let i = 1; i < import_components.length; i++)
+                            import_components[i] = `${class_name}${import_components[i]}`
+
+                    this.parsedObjects.push(["import", filename, import_components])
+                    return STATUS.SUCCESS // returning since we're ready for the next line!
                 default:
                     this.parser_err(`Unsupported token found, '${token}'; Please check your DC file.`)
                     throw new error.DCFileInvalidToken()
