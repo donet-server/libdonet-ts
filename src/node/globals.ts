@@ -12,7 +12,7 @@ export const DIST_TYPE: string = "node"
 export const MD_PORT: number = 7199
 export const CA_PORT: number = 6667
 
-export enum ESC_COLOR {
+export const enum ESC_COLOR {
     RESET = "\u001b[0m",
     RED = "\u001b[31;1m",
     YELLOW = "\u001b[33;1m",
@@ -23,7 +23,7 @@ export enum ESC_COLOR {
 export function color_string(str: string, color: ESC_COLOR): string {
     return `${color}${str}${ESC_COLOR.RESET}`
 }
-export enum STATUS { SUCCESS = 41094, FAILURE = 52081 }
+export const enum STATUS { SUCCESS = 41094, FAILURE = 52081 }
 
 export const DC_SYNTAX = {
     KEYWORDS: [
@@ -46,7 +46,7 @@ export const DC_SYNTAX = {
     ]
 }
 
-export enum ASTRON_CLIENT_MESSAGES {
+export const enum ASTRON_CLIENT_MESSAGES {
     // Client Messages
     CLIENT_HELLO                                = 1,
     CLIENT_HELLO_RESP                           = 2,
@@ -82,7 +82,7 @@ export enum ASTRON_CLIENT_MESSAGES {
     CLIENT_DISCONNECT_SESSION_OBJECT_DELETED    = 153,
 }
 
-export enum ASTRON_INTERNAL_MESSAGES {
+export const enum ASTRON_INTERNAL_MESSAGES {
     // ClientAgent Messages
     CLIENTAGENT_SET_STATE             = 1000,
     CLIENTAGENT_SET_CLIENT_ID         = 1001,
@@ -203,5 +203,6 @@ export const MODULE_DEBUG_FLAGS = {
     PARSER: false,
     CONNECTION: false,
     DATAGRAM: false,
-    OBJECT_REPO: false
+    OBJECT_REPO: false,
+    DIST_OBJECT: false
 }
