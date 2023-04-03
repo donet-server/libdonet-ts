@@ -19,19 +19,19 @@ const DistributedObject = astron.DistributedObject
  */
 
 export class Root extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class RootAI extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class RootAE extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
@@ -45,13 +45,13 @@ export class RootAE extends DistributedObject {
  */
 
 export class AnonymousContact extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class AnonymousContactUD extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
@@ -66,19 +66,19 @@ export class AnonymousContactUD extends DistributedObject {
  */
 
 export class LoginManager extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class LoginManagerAI extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class LoginManagerAE extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
@@ -91,19 +91,19 @@ export class LoginManagerAE extends DistributedObject {
  */
 
 export class DistributedWorld extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class DistributedWorldAI extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class DistributedWorldAE extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
@@ -118,25 +118,25 @@ export class DistributedWorldAE extends DistributedObject {
  */
 
 export class DistributedAvatar extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class DistributedAvatarAI extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class DistributedAvatarAE extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }
 
 export class DistributedAvatarOV extends DistributedObject {
-    private generate(): void {
+    protected generate(): void {
         return
     }
 }

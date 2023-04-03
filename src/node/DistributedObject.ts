@@ -21,7 +21,7 @@ export class DistributedObject {
         console.log(`${this.constructor.name}: ${msg}`)
     }
 
-    private generate(): void {
+    protected generate(): void {
         this.notify(`The generate() method for ${this.constructor.name}` +
                     `was not over-ridden by the developer.`)
         return // this function is intended to be over-ridden by the user
