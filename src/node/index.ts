@@ -9,6 +9,7 @@
 
 export * as globals from './globals'
 export { Parser } from './Parser'
+export { LegacyHash } from './LegacyHash'
 export { Datagram } from './Datagram'
 export { Connection } from './Connection'
 export { InternalRepository, ClientRepository } from './ObjectRepository'

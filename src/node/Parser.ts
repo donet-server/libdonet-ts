@@ -11,13 +11,15 @@ import { color_string, DC_SYNTAX, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS } from '
 import * as error from './Errors'
 import * as fs from 'node:fs'
 
-enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
+export type dcFile = Array<Array<string | Array<any>>>
+
+const enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
 const IMPORT_FILE_EXTENSION: string = '.js'
 
 export class Parser {
     private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.PARSER
     private fileContent: string = ""
-    private parsedObjects: Array<Array<string | Array<any>>> = []
+    private parsedObjects: dcFile = []
     private tempObject: Array<string | Array<any>> = []
 
     private cursor: number = 0
@@ -40,7 +42,7 @@ export class Parser {
     }
 
     // Public main method
-    public parse_file(dcFilePath: string): Array<Array<string | Array<any>>> {
+    public parse_file(dcFilePath: string): dcFile {
         this.read_dc_file(dcFilePath)
         for (let i = 0; i < this.lines.length; i++)
             this.parse_line()
@@ -527,5 +529,47 @@ export class Parser {
         this.fileContent = ""; this.parsedObjects = []; this.tempObject = []; this.scope = 0;
         this.tabMethod = TAB_METHOD.UNKNOWN; this.classLookup = {}; this.fieldLookup = [];
         this.structLookup = {}; this.reverseFieldLookup = {}; this.typedefs = {};
+    }
+}
+
+/*  So as I started writing the LegacyHash.ts file, I realized how
+    the parsed DC file is used in Astron implementations and realized
+    that an array of arrays might not be the best way to define the parsed file.
+
+    So instead of reworking this parser again, (which I've been spending too much time on)
+    I just defined helper functions below to make reading of the dcFile type easier.
+
+    This is not too different from Astron anyway, since Astron defines a 'File' class
+    which basically has its own helper functions to read the parsed DC objects.
+ */
+
+export class DCFileUtils {
+    private static count_objects_of_type(file: dcFile, type: string): number {
+        let count: number = 0
+        for (let i = 0; i < file.length; i++) {
+            const object: Array<string | Array<any>> = file[i]
+            if (object[0] === type) count++
+        }
+        return count
+    }
+
+    public static get_num_imports(file: dcFile): number {
+        return DCFileUtils.count_objects_of_type(file, 'import')
+    }
+
+    public static get_num_classes(file: dcFile): number {
+        return DCFileUtils.count_objects_of_type(file, 'dclass')
+    }
+
+    public static get_num_structs(file: dcFile): number {
+        throw new error.NotImplemented() // FIXME: implement
+    }
+
+    public static get_num_types(file: dcFile): number {
+        throw new error.NotImplemented() // FIXME: implement
+    }
+
+    public static get_num_keywords(file: dcFile): number {
+        throw new error.NotImplemented() // FIXME: implement
     }
 }
