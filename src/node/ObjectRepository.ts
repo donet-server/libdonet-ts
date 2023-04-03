@@ -8,8 +8,9 @@
 */
 
 import { MD_PORT, CA_PORT, MODULE_DEBUG_FLAGS } from './globals'
-import { Connection } from './Connection'
 import { Parser, dcFile } from './Parser'
+import { Connection } from './Connection'
+import { Datagram } from './Datagram'
 
 export class ObjectRepository extends Connection {
     private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPO

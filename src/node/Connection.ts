@@ -63,6 +63,14 @@ export class Connection {
         return dg
     }
 
+    public send_datagram(dg: Datagram): void {
+        try {
+            this.socket.write(dg.get_dg_buffer())
+        } catch (err) {
+            throw err // doesn't need to be handled; throw
+        }
+    }
+
     public disconnect(): void {
         this.socket.destroy()
         this.connected = false
