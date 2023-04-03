@@ -9,11 +9,11 @@
 
 import { MD_PORT, CA_PORT, MODULE_DEBUG_FLAGS } from './globals'
 import { Connection } from './Connection'
-import { Parser } from './Parser'
+import { Parser, dcFile } from './Parser'
 
 export class ObjectRepository extends Connection {
     private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPO
-    private dc_file: Array<Array<string | Array<any>>>
+    private dc_file: dcFile
 
     constructor(dc_file: string, host: string, port: number) {
         super(host, port) // call Connection class constructor
