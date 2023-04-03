@@ -10,7 +10,7 @@
 import { MODULE_DEBUG_FLAGS } from './globals'
 import { DCFileUtils, dcFile } from './Parser' // type alias for parsed DC file array
 import * as error from './Errors'
-import * as buffer from 'node:buffer'
+import { Buffer } from 'node:buffer'
 
 const enum LegacyType {
     L_INT8 = 0, L_INT16 = 1,
@@ -52,7 +52,7 @@ class HashGenerator {
                 first have to convert that character into a Buffer object and then
                 read the Buffer as an unsigned 8-bit integer and send it to `add_int()`.
              */
-            let char_buf: buffer.Buffer = Buffer.from(string[i], 'ascii')
+            let char_buf: Buffer = Buffer.from(string[i], 'ascii')
             this.add_int(char_buf.readUInt8())
         }
     }

@@ -63,3 +63,15 @@ export class AstronConnectionRefused extends Error {
             "Check if the Message Director is up, or if the Client Agent is up and exposed.");
     }
 }
+
+export class DatagramIntOutOfRange extends Error {
+    constructor() {
+        super("The Datagram object tried to write a number as a data type that was too small for its range.")
+    }
+}
+
+export class DatagramStringOutOfRange extends Error {
+    constructor() {
+        super("The Datagram object tried to write a string that was too large for a uint16 size.")
+    }
+}
