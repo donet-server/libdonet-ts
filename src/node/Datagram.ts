@@ -29,6 +29,15 @@ class DatagramBase {
 }
 
 export class Datagram extends DatagramBase {
+    /*
+        Something to note is that there are only `add_int` methods
+        and no `add_uint` methods. This is because the `add_int` methods
+        automatically check if the given number is signed, and write
+        it as a signed or unsigned integer accordingly.
+     */
+    constructor() {
+        super()
+    }
     public add_data(buffers: Array<Buffer>): void {
         let buff_array: Array<Buffer> = [this.dg_buffer]
         for (let i = 0; i < buffers.length; i++)
@@ -42,10 +51,14 @@ export class Datagram extends DatagramBase {
     }
 
     public add_bool(data: boolean): void {
-        let bool: Buffer = Buffer.alloc(1) // 1 byte = 8 bits
-        if (data) bool.writeUInt8(1, 0)
-        else bool.writeUInt8(0, 0)
-        this.add_data([bool])
+        if (data) this.add_int8(1)
+        else this.add_int8(0)
+    }
+
+    public add_char(data: string): void {
+        if (data.length > 1) throw new error.DatagramCharOutOfRange()
+        let char_buff: Buffer = Buffer.from(data, 'ascii')
+        this.add_int8(char_buff.readUInt8(0))
     }
 
     public add_string(data: string): void {
@@ -94,6 +107,20 @@ export class Datagram extends DatagramBase {
         this.add_data([int64])
     }
 
+    public add_float32(data: number): void {
+        // TODO: Check that number is in range
+        let float32: Buffer = Buffer.alloc(4) // 4 bytes = 32 bits
+        float32.writeFloatLE(data, 0)
+        this.add_data([float32])
+    }
+
+    public add_float64(data: number): void {
+        // TODO: Check that number is in range
+        let float64: Buffer = Buffer.alloc(8) // 8 bytes = 64 bits
+        float64.writeDoubleLE(data, 0)
+        this.add_data([float64])
+    }
+
     public add_blob(data: Buffer): void {
         throw new error.NotImplemented()
     }
@@ -106,7 +133,105 @@ export class Datagram extends DatagramBase {
 }
 
 export class DatagramIterator extends DatagramBase {
-    constructor() {
+    private dg_offset: number = 0 // bytes; incremented every read
+
+    constructor(dg: Datagram) {
         super()
+        this.dg_buffer = dg.get_dg_buffer()
+    }
+
+    private check_read_length(bytes: number): void {
+        if ((this.dg_offset + bytes) > this.dg_buffer.length)
+            throw new error.DatagramIteratorReadOutOfRange()
+    }
+
+    public read_data(bytes: number): Buffer {
+        this.check_read_length(bytes)
+        let data_buff: Buffer = this.dg_buffer.subarray(this.dg_offset, this.dg_offset + bytes)
+        this.dg_offset += bytes
+        return data_buff
+    }
+
+    public read_remaining(): Buffer {
+        return this.read_data(this.remaining())
+    }
+    public remaining(): number {
+        return this.get_dg_size() - this.dg_offset
+    }
+    public tell(): number {
+        return this.dg_offset
+    }
+    public seek(offset: number): void {
+        this.dg_offset = offset
+    }
+
+    public read_bool(): boolean {
+        let data: number = this.read_uint8()
+        return !!data
+    }
+
+    public read_char(): string {
+        let data: Buffer = this.read_data(1)
+        return data.toString('ascii', 0, data.length)
+    }
+
+    public read_string(): string {
+        let size: number = this.read_uint16() // read size tag
+        let data: Buffer = this.read_data(size)
+        return data.toString('ascii', 0, data.length)
+    }
+
+    public read_int8(): number {
+        let data: Buffer = this.read_data(1) // 1 byte = 8 bits
+        return data.readInt8(0)
+    }
+
+    public read_int16(): number {
+        let data: Buffer = this.read_data(2) // 2 bytes = 16 bits
+        return data.readInt16LE(0) // read bytes in little-endian order
+    }
+
+    public read_int32(): number {
+        let data: Buffer = this.read_data(4) // 4 bytes = 32 bits
+        return data.readInt32LE(0)
+    }
+
+    public read_int64(): bigint {
+        let data: Buffer = this.read_data(8) // 8 bytes = 64 bits
+        return data.readBigInt64LE(0)
+    }
+
+    public read_uint8(): number {
+        let data: Buffer = this.read_data(1) // 1 byte = 8 bits
+        return data.readUInt8(0)
+    }
+
+    public read_uint16(): number {
+        let data: Buffer = this.read_data(2) // 2 bytes = 16 bits
+        return data.readUInt16LE(0)
+    }
+
+    public read_uint32(): number {
+        let data: Buffer = this.read_data(4) // 4 bytes = 32 bits
+        return data.readUInt32LE(0)
+    }
+
+    public read_uint64(): bigint {
+        let data: Buffer = this.read_data(8) // 8 bytes = 64 bits
+        return data.readBigUInt64LE(0)
+    }
+
+    public read_float32(): number {
+        let data: Buffer = this.read_data(4) // 4 bytes = 32 bits
+        return data.readFloatLE()
+    }
+
+    public read_float64(): number {
+        let data: Buffer = this.read_data(8) // 8 bytes = 64 bits
+        return data.readDoubleLE()
+    }
+
+    public read_blob(): Buffer {
+        throw new error.NotImplemented()
     }
 }

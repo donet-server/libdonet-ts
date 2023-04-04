@@ -75,3 +75,15 @@ export class DatagramStringOutOfRange extends Error {
         super("The Datagram object tried to write a string that was too large for a uint16 size.")
     }
 }
+
+export class DatagramCharOutOfRange extends Error {
+    constructor() {
+        super("The Datagram object tried to write a char that was longer than one character.")
+    }
+}
+
+export class DatagramIteratorReadOutOfRange extends Error {
+    constructor() {
+        super("The DatagramIterator object tried to read past the end of its buffer.")
+    }
+}
