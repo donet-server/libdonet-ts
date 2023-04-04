@@ -11,10 +11,24 @@ import { MODULE_DEBUG_FLAGS } from './globals'
 import * as error from './Errors'
 import { Buffer } from 'node:buffer'
 
-export class Datagram {
-    private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DATAGRAM
-    private dg_buffer: Buffer = Buffer.alloc(0)
+class DatagramBase {
+    protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DATAGRAM
+    protected dg_buffer: Buffer = Buffer.alloc(0)
 
+    public get_dg_size(): number {
+        return this.dg_buffer.length
+    }
+    public get_dg_buffer(): Buffer {
+        return this.dg_buffer
+    }
+
+    protected notify(msg: string): void {
+        if (!this._DEBUG_) return
+        console.log(`${this.constructor.name}: ${msg}`)
+    }
+}
+
+export class Datagram extends DatagramBase {
     public add_data(buffers: Array<Buffer>): void {
         let buff_array: Array<Buffer> = [this.dg_buffer]
         for (let i = 0; i < buffers.length; i++)
@@ -84,22 +98,15 @@ export class Datagram {
         throw new error.NotImplemented()
     }
 
-    public get_dg_size(): number {
-        return this.dg_buffer.length
-    }
-
-    public get_dg_buffer(): Buffer {
-        return this.dg_buffer
-    }
-
     private create_size_tag(size: number): Buffer {
         let size_uint16: Buffer = Buffer.alloc(2) // 2 bytes = 16 bits
         size_uint16.writeUint16LE(size_uint16.length, 0) // writing little-endian order
         return size_uint16
     }
+}
 
-    private notify(msg: string): void {
-        if (!this._DEBUG_) return
-        console.log(`${this.constructor.name}: ${msg}`)
+export class DatagramIterator extends DatagramBase {
+    constructor() {
+        super()
     }
 }

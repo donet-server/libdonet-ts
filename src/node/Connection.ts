@@ -16,10 +16,10 @@ import * as net from 'node:net'
 const DATAGRAM_HEADER_SIZE: number = 2 // bytes
 
 export class Connection {
-    private __DEBUG__: boolean = MODULE_DEBUG_FLAGS.CONNECTION
-    private readonly host: string
-    private readonly port: number
-    private connected: boolean = false
+    protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.CONNECTION
+    protected readonly host: string
+    protected readonly port: number
+    protected connected: boolean = false
     private socket: net.Socket
     private data_buffer: Buffer = Buffer.alloc(0)
     private receiving: boolean = false
@@ -50,12 +50,12 @@ export class Connection {
         this.socket.connect({port: this.port, host: this.host})
     }
 
-    public poll_datagram(): Datagram | void {
+    public poll_datagram(): Datagram | null {
         /*  If the socket has finished receiving all the data,
             it will be stored into a Datagram object and returned.
-            If we're still receiving data, this method returns void.
+            If we're still receiving data, this method returns null.
         */
-        if (!this.receiving) return
+        if (!this.receiving) return null
         let dg: Datagram = new Datagram()
         dg.add_data([this.data_buffer])
         this.data_buffer = Buffer.alloc(0) // empty buffer
@@ -80,8 +80,8 @@ export class Connection {
         return this.connected
     }
 
-    private notify(msg: string): void {
-        if (!this.__DEBUG__) return
+    protected notify(msg: string): void {
+        if (!this._DEBUG_) return
         console.log(`${this.constructor.name}: ${msg}`)
     }
 }

@@ -46,7 +46,7 @@ export const DC_SYNTAX = {
     ]
 }
 
-export const enum ASTRON_CLIENT_MESSAGES {
+export const enum CLIENT_MSG {
     // Client Messages
     CLIENT_HELLO                                = 1,
     CLIENT_HELLO_RESP                           = 2,
@@ -82,7 +82,7 @@ export const enum ASTRON_CLIENT_MESSAGES {
     CLIENT_DISCONNECT_SESSION_OBJECT_DELETED    = 153,
 }
 
-export const enum ASTRON_INTERNAL_MESSAGES {
+export const enum INTERNAL_MSG {
     // ClientAgent Messages
     CLIENTAGENT_SET_STATE             = 1000,
     CLIENTAGENT_SET_CLIENT_ID         = 1001,

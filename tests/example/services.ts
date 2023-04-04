@@ -14,6 +14,14 @@ class Services {
 
     constructor() {
         this.repo = new astron.InternalRepository('example.dc')
+        // TODO: implement connect success callback to repo
+    }
+
+    private connection_success(): void {
+        console.log("Internal Repository connected!")
+        while (true) {
+            this.repo.poll_until_empty()
+        }
     }
 }
 
