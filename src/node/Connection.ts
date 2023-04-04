@@ -65,7 +65,11 @@ export class Connection {
 
     public send_datagram(dg: Datagram): void {
         try {
-            this.socket.write(dg.get_dg_buffer())
+            let send_buffer: Buffer
+            let dg_size_uint16: Buffer = Buffer.alloc(DATAGRAM_HEADER_SIZE)
+            dg_size_uint16.writeUint16LE(dg.get_dg_size())
+            send_buffer = Buffer.concat([dg_size_uint16, dg.get_dg_buffer()])
+            this.socket.write(send_buffer)
         } catch (err) {
             throw err // doesn't need to be handled; throw
         }

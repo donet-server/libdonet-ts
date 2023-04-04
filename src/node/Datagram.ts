@@ -72,7 +72,7 @@ export class Datagram extends DatagramBase {
 
     public add_int8(data: number): void {
         // first check that number is in range (both signed/unsigned max range)
-        if ((data > (2 ** 8)) || (data < (2 ** 7))) throw new error.DatagramIntOutOfRange()
+        if ((data > (2 ** 8)) || (data < ((2 ** 7) * -1))) throw new error.DatagramIntOutOfRange()
         let int8: Buffer = Buffer.alloc(1) // 1 byte = 8 bits
         let signed: boolean = (data < 0)
         if (signed) int8.writeInt8(data, 0)
@@ -81,7 +81,7 @@ export class Datagram extends DatagramBase {
     }
 
     public add_int16(data: number): void {
-        if ((data > (2 ** 16)) || (data < (2 ** 15))) throw new error.DatagramIntOutOfRange()
+        if ((data > (2 ** 16)) || (data < ((2 ** 15) * -1))) throw new error.DatagramIntOutOfRange()
         let int16: Buffer = Buffer.alloc(2) // 2 bytes = 16 bits
         let signed: boolean = (data < 0)
         if (signed) int16.writeInt16LE(data, 0)
@@ -90,7 +90,7 @@ export class Datagram extends DatagramBase {
     }
 
     public add_int32(data: number): void {
-        if ((data > (2 ** 32)) || (data < (2 ** 31))) throw new error.DatagramIntOutOfRange()
+        if ((data > (2 ** 32)) || (data < ((2 ** 31) * -1))) throw new error.DatagramIntOutOfRange()
         let int32: Buffer = Buffer.alloc(4) // 4 bytes = 32 bits
         let signed: boolean = (data < 0)
         if (signed) int32.writeInt32LE(data, 0)
@@ -99,7 +99,7 @@ export class Datagram extends DatagramBase {
     }
 
     public add_int64(data: bigint): void {
-        if ((data > (2 ** 64)) || (data < (2 ** 63))) throw new error.DatagramIntOutOfRange()
+        if ((data > (2 ** 64)) || (data < ((2 ** 63) * -1))) throw new error.DatagramIntOutOfRange()
         let int64: Buffer = Buffer.alloc(8) // 8 bytes = 64 bits
         let signed: boolean = (data < 0)
         if (signed) int64.writeBigInt64LE(data, 0)

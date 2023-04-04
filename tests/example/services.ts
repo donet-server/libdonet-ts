@@ -13,7 +13,7 @@ class Services {
     private repo: astron.InternalRepository
 
     constructor() {
-        this.repo = new astron.InternalRepository('example.dc')
+        this.repo = new astron.InternalRepository({dc_file: 'example.dc', channel: 500000})
         // TODO: implement connect success callback to repo
     }
 

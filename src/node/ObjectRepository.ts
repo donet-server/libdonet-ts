@@ -11,9 +11,11 @@ import { CA_PORT, INTERNAL_MSG, MD_PORT, MODULE_DEBUG_FLAGS } from './globals'
 import { dcFile, Parser } from './Parser'
 import { Connection } from './Connection'
 import { DistributedObject } from './DistributedObject'
-import { Datagram, DatagramIterator } from "./Datagram";
+import { Datagram, DatagramIterator } from './Datagram'
+import * as error from './Errors'
 
-type InternalHandler = (dgi: DatagramIterator, sender: bigint, recipients: Array<bigint>)=>void
+export type channel = bigint
+type InternalHandler = (dgi: DatagramIterator, sender: channel, recipients: Array<channel>)=>void
 
 export class ObjectRepository extends Connection {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPO
@@ -102,17 +104,28 @@ export class ObjectRepository extends Connection {
 }
 
 export class InternalRepository extends ObjectRepository {
-    constructor(dc_file: string, host: string = "127.0.0.1", port: number = MD_PORT) {
-        super(dc_file, host, port)
+    protected ai_channel: channel
+    protected ss_channel: channel = BigInt(400000)
+    protected dbss_channel: channel = BigInt(400001)
+
+    constructor(args: {dc_file: string, channel: number, stateserver?: number, dbss?: number},
+                host: string = "127.0.0.1", port: number = MD_PORT) {
+        super(args.dc_file, host, port)
+        this.ai_channel = BigInt(args.channel)
+        if (args.stateserver) this.ss_channel = BigInt(args.stateserver)
+        if (args.dbss) this.dbss_channel = BigInt(args.dbss)
+
         this.handlers = [
             [INTERNAL_MSG.STATESERVER_OBJECT_SET_FIELD, this.handle_STATESERVER_OBJECT_SET_FIELD]
         ]
+        // Declare our AI channel to the Astron cluster
+        this.send_CONTROL_ADD_CHANNEL(this.ai_channel)
     }
 
     protected handle_datagram(dg: Datagram) {
         let dgi: DatagramIterator = new DatagramIterator(dg)
         let recipient_count: number = dgi.read_uint8()
-        let recipients: Array<bigint> = []
+        let recipients: Array<channel> = []
         for (let i = 0; i < recipient_count; i++) recipients.push(dgi.read_uint64())
         let sender: bigint = dgi.read_uint64()
         let msg_type: INTERNAL_MSG = dgi.read_uint16()
@@ -126,8 +139,28 @@ export class InternalRepository extends ObjectRepository {
         this.notify(`Received unhandled message type: ${msg_type}`)
     }
 
+    protected create_message_stub(sender: channel, recipients: Array<channel>): Datagram {
+        let dg: Datagram = new Datagram()
+        dg.add_int8(recipients.length) // dg.add_int8() will write as unsigned integer
+        for (let i = 0; i < recipients.length; i++)
+            dg.add_int64(recipients[i])
+        dg.add_int64(sender)
+        return dg
+    }
+
+    // Send Internal Messages
+    private send_CONTROL_ADD_CHANNEL(channel: channel): void {
+        // Note: control messages don't have sender fields
+        let dg: Datagram = new Datagram()
+        dg.add_int8(1) // recipient count
+        dg.add_int64(BigInt(1)) // control channel
+        dg.add_int16(INTERNAL_MSG.CONTROL_ADD_CHANNEL)
+        dg.add_int64(channel)
+        this.send_datagram(dg)
+    }
+
     // Internal message handlers
-    private handle_STATESERVER_OBJECT_SET_FIELD(dgi: DatagramIterator, sender: bigint, recipients: Array<bigint>): void {
+    private handle_STATESERVER_OBJECT_SET_FIELD(dgi: DatagramIterator, sender: channel, recipients: Array<channel>) {
         return // FIXME: Implement
     }
 }
@@ -139,5 +172,6 @@ export class ClientRepository extends ObjectRepository {
 
     protected handle_datagram(dg: Datagram) {
         let dgi: DatagramIterator = new DatagramIterator(dg)
+        throw new error.NotImplemented()
     }
 }
