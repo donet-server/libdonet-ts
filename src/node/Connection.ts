@@ -9,6 +9,7 @@
 
 import { MODULE_DEBUG_FLAGS, MD_PORT } from './globals'
 import { Datagram } from './Datagram'
+import { Repository } from './ObjectRepository'
 import * as error from './Errors'
 import { Buffer } from 'node:buffer'
 import * as net from 'node:net'
@@ -17,20 +18,27 @@ const DATAGRAM_HEADER_SIZE: number = 2 // bytes
 
 export class Connection {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.CONNECTION
+    protected connected: boolean = false
     protected readonly host: string
     protected readonly port: number
-    protected connected: boolean = false
+    private readonly success_callback: (repo: Repository) => void
+    private readonly failure_callback: (err: Error) => void // FIXME
     private socket: net.Socket
     private data_buffer: Buffer = Buffer.alloc(0)
     private receiving: boolean = false
 
-    constructor(host: string = "127.0.0.1", port: number = MD_PORT) {
+    constructor(host: string = "127.0.0.1", port: number = MD_PORT,
+                success: (repo: Repository)=>void, failure: (err: Error)=>void) {
+
         this.host = host; this.port = port;
+        this.success_callback = success; this.failure_callback = failure;
         this.socket = new net.Socket()
 
         this.socket.on('connect', () => {
             this.connected = true
             this.notify("TCP socket connected!")
+            // @ts-ignore  This object will always be inherited by a Repository type
+            this.success_callback(this)
         })
         this.socket.on('data', (data: Buffer) => {
             if (data.length > 0) // add bytes received to the data buffer
@@ -45,7 +53,7 @@ export class Connection {
             if (err.message.includes('ECONNREFUSED'))
                 throw new error.AstronConnectionRefused // throw our own error message
             else
-                throw err // not handled, throw it
+                this.failure_callback(err)
         })
         this.socket.connect({port: this.port, host: this.host})
     }

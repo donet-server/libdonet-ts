@@ -7,22 +7,27 @@
     with this source code in a file named "LICENSE."
 */
 
-import * as astron from './../../'
+import {InternalRepository, Repository} from './../../'
 
-class Services {
-    private repo: astron.InternalRepository
+class AI {
+    private repo: InternalRepository
 
     constructor() {
-        this.repo = new astron.InternalRepository({dc_file: 'example.dc', channel: 500000})
-        // TODO: implement connect success callback to repo
+        this.repo = new InternalRepository({
+            dc_file: 'example.dc', channel: 300000, stateserver: 402000,
+            success_callback: this.connection_success, failure_callback: this.connection_failure
+        })
+        this.repo.set_poll_rate(30.0) // 30 'frames' per second
     }
 
-    private connection_success(): void {
+    private connection_success(repo: Repository): void {
         console.log("Internal Repository connected!")
-        while (true) {
-            this.repo.poll_until_empty()
-        }
+        repo.poll_forever() // note: this method is asynchronous
+    }
+
+    private connection_failure(err: Error): void {
+        throw err // not handled for this example :)
     }
 }
 
-const app = new Services()
+const ai = new AI()

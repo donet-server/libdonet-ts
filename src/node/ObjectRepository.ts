@@ -14,7 +14,8 @@ import { DistributedObject } from './DistributedObject'
 import { Datagram, DatagramIterator } from './Datagram'
 import * as error from './Errors'
 
-export type channel = bigint
+export type channel = bigint // uint64
+export type Repository = ObjectRepository | InternalRepository | ClientRepository
 type InternalHandler = (dgi: DatagramIterator, sender: channel, recipients: Array<channel>)=>void
 
 export class ObjectRepository extends Connection {
@@ -27,8 +28,13 @@ export class ObjectRepository extends Connection {
     protected context_counters: Array<Array<INTERNAL_MSG | number>>
     protected callbacks: Array<(void)> = []
 
-    constructor(dc_file: string, host: string, port: number) {
-        super(host, port) // open the TCP socket connection
+    protected dg_poll_rate: number = 30.0 // polls per second
+    protected tasks: Array<()=>void> = [] // called per poll
+
+    constructor(dc_file: string, success: (repo: Repository)=>void,
+                failure: (err: Error)=>void, host: string, port: number) {
+
+        super(host, port, success, failure) // open the TCP socket connection
         this.dc_file = new Parser().parse_file(dc_file)
 
         this.msg_to_response_map = [
@@ -81,23 +87,43 @@ export class ObjectRepository extends Connection {
                 else break
             }
         } catch (err) {
-            return false // connection must be closed, just return false
+            if (err == error.AstronConnectionRefused)
+                return false // connection is closed, just return false
+            throw err // we don't know this error, throw it
         }
         return true
     }
 
     public poll_forever(): void {
-        try {
-            while (true) {
-                const dg: Datagram | null = this.poll_datagram()
-                if (dg !== null)
-                    this.handle_datagram(dg)
+        /*  NOTE: This method is asynchronous.
+            poll_forever() will keep polling datagrams `dg_poll_rate` / second.
+            It also handles calling the repo's tasks every poll. */
+        (async () => {
+            try {
+                while (true) {
+                    const dg: Datagram | null = this.poll_datagram()
+                    if (dg !== null)
+                        this.handle_datagram(dg)
+                    this.repo_poll_tasks()
+                    // FIXME: calculate accurate delay time including poll time
+                    await delay((1 / this.dg_poll_rate) * 1000)
+                }
+            } catch (err) {
+                throw err // not handled, just throw it :)
             }
-        } catch (err) {
-            throw err // not handled, just throw it :)
-        }
+        })()
     }
 
+    public set_poll_rate(rate: number): void {
+        this.dg_poll_rate = rate // rate in Hz
+    }
+    public add_task(callback: () => void): void {
+        this.tasks.push(callback)
+    }
+    protected repo_poll_tasks(): void {
+        for (let i = 0; i < this.tasks.length; i++)
+            this.tasks[i]()
+    }
     protected handle_datagram(dg: Datagram) {
         this.notify('ObjectRepository.handle_datagram() was called, but was not overloaded.')
     }
@@ -108,9 +134,11 @@ export class InternalRepository extends ObjectRepository {
     protected ss_channel: channel = BigInt(400000)
     protected dbss_channel: channel = BigInt(400001)
 
-    constructor(args: {dc_file: string, channel: number, stateserver?: number, dbss?: number},
-                host: string = "127.0.0.1", port: number = MD_PORT) {
-        super(args.dc_file, host, port)
+    constructor(args: {dc_file: string, channel: number, success_callback: (repo: Repository)=>void,
+                        failure_callback: (err: Error)=>void, stateserver?: number, dbss?: number},
+                        host: string = "127.0.0.1", port: number = MD_PORT) {
+
+        super(args.dc_file, args.success_callback, args.failure_callback, host, port)
         this.ai_channel = BigInt(args.channel)
         if (args.stateserver) this.ss_channel = BigInt(args.stateserver)
         if (args.dbss) this.dbss_channel = BigInt(args.dbss)
@@ -167,11 +195,15 @@ export class InternalRepository extends ObjectRepository {
 
 export class ClientRepository extends ObjectRepository {
     constructor(dc_file: string, host: string = "127.0.0.1", port: number = CA_PORT) {
-        super(dc_file, host, port)
+        super(dc_file, (repo: Repository)=>{}, (err: Error)=>{}, host, port) // FIXME: Callbacks
     }
 
     protected handle_datagram(dg: Datagram) {
         let dgi: DatagramIterator = new DatagramIterator(dg)
         throw new error.NotImplemented()
     }
+}
+
+function delay(ms: number): Promise<void> { // util function
+    return new Promise( resolve => setTimeout(resolve, ms) );
 }
