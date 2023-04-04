@@ -58,7 +58,7 @@ export class Connection {
         this.socket.connect({port: this.port, host: this.host})
     }
 
-    public poll_datagram(): Datagram | null {
+    protected poll_datagram(): Datagram | null {
         /*  If the socket has finished receiving all the data,
             it will be stored into a Datagram object and returned.
             If we're still receiving data, this method returns null.
@@ -71,7 +71,7 @@ export class Connection {
         return dg
     }
 
-    public send_datagram(dg: Datagram): void {
+    protected send_datagram(dg: Datagram): void {
         try {
             let send_buffer: Buffer
             let dg_size_uint16: Buffer = Buffer.alloc(DATAGRAM_HEADER_SIZE)
@@ -83,12 +83,12 @@ export class Connection {
         }
     }
 
-    public disconnect(): void {
+    protected disconnect(): void {
         this.socket.destroy()
         this.connected = false
         this.notify("TCP socket connection closed!")
     }
-    public is_connected(): boolean {
+    protected is_connected(): boolean {
         return this.connected
     }
 
