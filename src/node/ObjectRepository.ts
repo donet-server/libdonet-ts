@@ -7,14 +7,13 @@
     with this source code in a file named "LICENSE."
 */
 
-import { CA_PORT, INTERNAL_MSG, MD_PORT, MODULE_DEBUG_FLAGS } from './globals'
+import { CA_PORT, INTERNAL_MSG, MD_PORT, MODULE_DEBUG_FLAGS, channel } from './globals'
 import { dcFile, Parser } from './Parser'
 import { Connection } from './Connection'
 import { DistributedObject } from './DistributedObject'
 import { Datagram, DatagramIterator } from './Datagram'
 import * as error from './Errors'
 
-export type channel = bigint // uint64
 export type Repository = ObjectRepository | InternalRepository | ClientRepository
 type InternalHandler = (dgi: DatagramIterator, sender: channel, recipients: Array<channel>)=>void
 
@@ -176,8 +175,9 @@ export class InternalRepository extends ObjectRepository {
         return dg
     }
 
-    // Send Internal Messages
-    private send_CONTROL_ADD_CHANNEL(channel: channel): void {
+    // -------- Astron Internal Messages --------- //
+
+    public send_CONTROL_ADD_CHANNEL(channel: channel): void {
         // Note: control messages don't have sender fields
         let dg: Datagram = new Datagram()
         dg.add_int8(1) // recipient count
@@ -187,7 +187,97 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    // Internal message handlers
+    public send_STATESERVER_OBJECT_SET_AI(do_id: number): void {
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
+        dg.add_int16(INTERNAL_MSG.STATESERVER_OBJECT_SET_AI)
+        dg.add_int64(this.ai_channel)
+        this.send_datagram(dg)
+    }
+
+    public send_STATESERVER_DELETE_AI_OBJECTS(): void {
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [this.ss_channel])
+        dg.add_int16(INTERNAL_MSG.STATESERVER_DELETE_AI_OBJECTS)
+        dg.add_int64(this.ai_channel)
+        this.send_datagram(dg)
+    }
+
+    public send_STATESERVER_CREATE_OBJECT_WITH_REQUIRED(
+        dclass_id: number, do_id: number, parent: number, zone: number): void {
+
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [this.ss_channel])
+        dg.add_int16(INTERNAL_MSG.STATESERVER_CREATE_OBJECT_WITH_REQUIRED)
+        dg.add_int32(do_id)
+        dg.add_int32(parent)
+        dg.add_int32(zone)
+        dg.add_int16(dclass_id)
+        // FIXME: Add required fields
+        this.send_datagram(dg)
+    }
+
+    public send_DBSERVER_CREATE_OBJECT(dclass_id: number, context: number): void {
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [this.dbss_channel])
+        dg.add_int16(INTERNAL_MSG.DBSERVER_CREATE_OBJECT)
+        dg.add_int32(context)
+        dg.add_int16(dclass_id)
+        dg.add_int16(0)
+        // FIXME: This is actually `uint16 field_count`, `[uint16 field_id, <VALUE>]*field_count`
+        // and should be accessible via `create_distobj_db`
+        this.send_datagram(dg)
+    }
+
+    public send_DBSS_OBJECT_ACTIVATE_WITH_DEFAULTS(do_id: number, parent: number, zone: number): void {
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
+        dg.add_int16(INTERNAL_MSG.DBSS_OBJECT_ACTIVATE_WITH_DEFAULTS)
+        dg.add_int32(do_id)
+        dg.add_int32(parent)
+        dg.add_int32(zone)
+        this.send_datagram(dg)
+    }
+
+    public send_CLIENTAGENT_SET_STATE(ca: channel, state: number, sender: channel): void {
+        if (sender === BigInt(0)) sender = this.ai_channel
+        let dg: Datagram = this.create_message_stub(sender, [ca])
+        dg.add_int16(INTERNAL_MSG.CLIENTAGENT_SET_STATE)
+        dg.add_int16(state)
+        this.send_datagram(dg)
+    }
+
+    public send_CLIENTAGENT_ADD_SESSION_OBJECT(do_id: number, client: channel): void {
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [client])
+        dg.add_int16(INTERNAL_MSG.CLIENTAGENT_ADD_SESSION_OBJECT)
+        dg.add_int32(do_id)
+        this.send_datagram(dg)
+    }
+
+    public send_CLIENTAGENT_ADD_INTEREST(
+        client: channel, interest_id: number, parent: number, zone: number): void {
+
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [client])
+        dg.add_int16(INTERNAL_MSG.CLIENTAGENT_ADD_INTEREST)
+        dg.add_int16(interest_id)
+        dg.add_int32(parent)
+        dg.add_int32(zone)
+        this.send_datagram(dg)
+    }
+
+    public send_STATESERVER_OBJECT_SET_OWNER(do_id: number, owner: channel): void {
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
+        dg.add_int16(INTERNAL_MSG.STATESERVER_OBJECT_SET_OWNER)
+        dg.add_int64(owner)
+        this.send_datagram(dg)
+    }
+
+    public send_STATESERVER_OBJECT_GET_ZONE_OBJECTS(context: number, parent: number, zone: number): void {
+        let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(parent)])
+        dg.add_int16(INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONE_OBJECTS)
+        dg.add_int32(context)
+        dg.add_int32(parent)
+        dg.add_int32(zone)
+        this.send_datagram(dg)
+    }
+
+    // -------- Internal Message Handlers --------- //
+
     private handle_STATESERVER_OBJECT_SET_FIELD(dgi: DatagramIterator, sender: channel, recipients: Array<channel>) {
         return // FIXME: Implement
     }

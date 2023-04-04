@@ -12,6 +12,9 @@ export const DIST_TYPE: string = "node"
 export const MD_PORT: number = 7199
 export const CA_PORT: number = 6667
 
+// Type definitions
+export type channel = bigint // uint64
+
 export const enum ESC_COLOR {
     RESET = "\u001b[0m",
     RED = "\u001b[31;1m",
