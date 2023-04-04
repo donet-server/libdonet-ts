@@ -13,15 +13,17 @@ import { Connection } from './Connection'
 import { DistributedObject } from './DistributedObject'
 import { Datagram, DatagramIterator } from "./Datagram";
 
+type InternalHandler = (dgi: DatagramIterator, sender: bigint, recipients: Array<bigint>)=>void
+
 export class ObjectRepository extends Connection {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPO
-    private dc_file: dcFile
-    private distributed_objects: Array<DistributedObject> = []
-    private owner_views: Array<DistributedObject> = []
-    private handlers: Array<(void)> = []
-    private msg_to_response_map: Array<Array<INTERNAL_MSG>>
-    private context_counters: Array<Array<INTERNAL_MSG | number>>
-    private callbacks: Array<(void)> = []
+    protected dc_file: dcFile
+    protected distributed_objects: Array<DistributedObject> = []
+    protected owner_views: Array<DistributedObject> = []
+    protected handlers: Array<Array<INTERNAL_MSG | InternalHandler>> = []
+    protected msg_to_response_map: Array<Array<INTERNAL_MSG>>
+    protected context_counters: Array<Array<INTERNAL_MSG | number>>
+    protected callbacks: Array<(void)> = []
 
     constructor(dc_file: string, host: string, port: number) {
         super(host, port) // open the TCP socket connection
@@ -102,11 +104,40 @@ export class ObjectRepository extends Connection {
 export class InternalRepository extends ObjectRepository {
     constructor(dc_file: string, host: string = "127.0.0.1", port: number = MD_PORT) {
         super(dc_file, host, port)
+        this.handlers = [
+            [INTERNAL_MSG.STATESERVER_OBJECT_SET_FIELD, this.handle_STATESERVER_OBJECT_SET_FIELD]
+        ]
+    }
+
+    protected handle_datagram(dg: Datagram) {
+        let dgi: DatagramIterator = new DatagramIterator(dg)
+        let recipient_count: number = dgi.read_uint8()
+        let recipients: Array<bigint> = []
+        for (let i = 0; i < recipient_count; i++) recipients.push(dgi.read_uint64())
+        let sender: bigint = dgi.read_uint64()
+        let msg_type: INTERNAL_MSG = dgi.read_uint16()
+
+        for (let i = 0; i < this.handlers.length; i++) {
+            if (this.handlers[i][0] === msg_type) {
+                // @ts-ignore  We know that index '1' will always be of type `InternalHandler`
+                this.handlers[i][1](dgi, sender, recipients); return;
+            }
+        }
+        this.notify(`Received unhandled message type: ${msg_type}`)
+    }
+
+    // Internal message handlers
+    private handle_STATESERVER_OBJECT_SET_FIELD(dgi: DatagramIterator, sender: bigint, recipients: Array<bigint>): void {
+        return // FIXME: Implement
     }
 }
 
 export class ClientRepository extends ObjectRepository {
     constructor(dc_file: string, host: string = "127.0.0.1", port: number = CA_PORT) {
         super(dc_file, host, port)
+    }
+
+    protected handle_datagram(dg: Datagram) {
+        let dgi: DatagramIterator = new DatagramIterator(dg)
     }
 }
