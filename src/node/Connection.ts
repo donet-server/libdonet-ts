@@ -44,7 +44,7 @@ export class Connection {
             if (data.length > 0) // add bytes received to the data buffer
                 this.data_buffer = Buffer.concat([this.data_buffer, data])
 
-            if (this.data_buffer.length > 0) return
+            if (this.data_buffer.length < DATAGRAM_HEADER_SIZE) return
             // check if we still have more to add to our data buffer
             let dg_size: number = this.data_buffer.readUint16LE(0)
             this.receiving = (this.data_buffer.length - DATAGRAM_HEADER_SIZE) < dg_size
