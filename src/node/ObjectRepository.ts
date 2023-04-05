@@ -7,7 +7,8 @@
     with this source code in a file named "LICENSE."
 */
 
-import { CA_PORT, INTERNAL_MSG, MD_PORT, MODULE_DEBUG_FLAGS, channel } from './globals'
+import { MODULE_DEBUG_FLAGS, CA_PORT, MD_PORT, channel } from './globals'
+import { AstronProtocol, INTERNAL_MSG, CLIENT_MSG } from './globals'
 import { dcFile, Parser } from './Parser'
 import { Connection } from './Connection'
 import { DistributedObject } from './DistributedObject'
@@ -18,15 +19,16 @@ export type Repository = ObjectRepository | InternalRepository | ClientRepositor
 type InternalHandler = (dgi: DatagramIterator, sender: channel, recipients: Array<channel>)=>void
 
 export class ObjectRepository extends Connection {
-    protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPO
+    protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPOSITORY
+    protected protocol: AstronProtocol = AstronProtocol.default
     protected dc_file: dcFile
+    protected dclass_map: Array<Array<string | number>> = []
     protected distributed_objects: Array<DistributedObject> = []
     protected owner_views: Array<DistributedObject> = []
     protected handlers: Array<Array<INTERNAL_MSG | InternalHandler>> = []
     protected msg_to_response_map: Array<Array<INTERNAL_MSG>>
     protected context_counters: Array<Array<INTERNAL_MSG | number>>
     protected callbacks: Array<(void)> = []
-
     protected dg_poll_rate: number = 30.0 // polls per second
     protected tasks: Array<()=>void> = [] // called per poll
 
@@ -75,6 +77,27 @@ export class ObjectRepository extends Connection {
             [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELDS_IF_EQUALS_RESP, 0],
             [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EMPTY_RESP  , 0],
         ]
+
+        // Map Distributed Classes in DC file to their IDs
+        let dclass_id: number = 0
+        for (let i = 0; i < this.dc_file.length; i++) {
+            let dc_object: Array<string | Array<any>> = this.dc_file[i]
+            if (dc_object[0] !== 'dclass') continue
+            // @ts-ignore  It's assured that index '1' of `dc_object` is a string.
+            this.dclass_map.push([dc_object[1], dclass_id])
+            dclass_id++
+        }
+        //console.dir(this.dclass_map, {depth: null})
+    }
+
+    public dclass_name_to_id(dclass_name: string): number {
+        for (let i = 0; i < this.dclass_map.length; i++) {
+            let dclass_entry: Array<string | number> = this.dclass_map[i]
+            if (dclass_entry[0] !== dclass_name) continue
+            // @ts-ignore  index '1' of `dclass_entry` will *always* be a number.
+            return dclass_entry[1]
+        }
+        throw new error.DistributedClassNotFound() // we ran through the whole list ;-;
     }
 
     public poll_until_empty(): boolean {
@@ -123,12 +146,16 @@ export class ObjectRepository extends Connection {
         for (let i = 0; i < this.tasks.length; i++)
             this.tasks[i]()
     }
+    protected send_datagram(dg: Datagram) {
+        this.notify('ObjectRepository.send_datagram() was called, but was not over-ridden.')
+    }
     protected handle_datagram(dg: Datagram) {
-        this.notify('ObjectRepository.handle_datagram() was called, but was not overloaded.')
+        this.notify('ObjectRepository.handle_datagram() was called, but was not over-ridden.')
     }
 }
 
 export class InternalRepository extends ObjectRepository {
+    protected protocol: AstronProtocol = AstronProtocol.Internal
     protected ai_channel: channel
     protected ss_channel: channel = BigInt(400000)
     protected dbss_channel: channel = BigInt(400001)
@@ -145,8 +172,9 @@ export class InternalRepository extends ObjectRepository {
         this.handlers = [
             [INTERNAL_MSG.STATESERVER_OBJECT_SET_FIELD, this.handle_STATESERVER_OBJECT_SET_FIELD]
         ]
-        // Declare our AI channel to the Astron cluster
-        this.send_CONTROL_ADD_CHANNEL(this.ai_channel)
+        // we don't have to wait until the socket is connected, because
+        // writing to a socket will automatically queue it if we're still connecting.
+        this.add_channel(this.ai_channel)
     }
 
     protected handle_datagram(dg: Datagram) {
@@ -175,9 +203,17 @@ export class InternalRepository extends ObjectRepository {
         return dg
     }
 
+    // -------- Creating Distributed Objects --------- //
+
+    public create_object(cls_name: string, do_id: number, parent: number, zone: number, set_ai: boolean = false) {
+        let dclass_id: number = this.dclass_name_to_id(cls_name)
+        this.create_object_with_required(dclass_id, do_id, parent, zone)
+        if (set_ai) this.set_object_AI(do_id)
+    }
+
     // -------- Astron Internal Messages --------- //
 
-    public send_CONTROL_ADD_CHANNEL(channel: channel): void {
+    public add_channel(channel: channel): void {
         // Note: control messages don't have sender fields
         let dg: Datagram = new Datagram()
         dg.add_int8(1) // recipient count
@@ -187,34 +223,32 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public send_STATESERVER_OBJECT_SET_AI(do_id: number): void {
+    public set_object_AI(do_id: number): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
         dg.add_int16(INTERNAL_MSG.STATESERVER_OBJECT_SET_AI)
         dg.add_int64(this.ai_channel)
         this.send_datagram(dg)
     }
 
-    public send_STATESERVER_DELETE_AI_OBJECTS(): void {
+    public delete_AI_objects(): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [this.ss_channel])
         dg.add_int16(INTERNAL_MSG.STATESERVER_DELETE_AI_OBJECTS)
         dg.add_int64(this.ai_channel)
         this.send_datagram(dg)
     }
 
-    public send_STATESERVER_CREATE_OBJECT_WITH_REQUIRED(
-        dclass_id: number, do_id: number, parent: number, zone: number): void {
-
+    public create_object_with_required(dclass_id: number, do_id: number, parent: number, zone: number): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [this.ss_channel])
         dg.add_int16(INTERNAL_MSG.STATESERVER_CREATE_OBJECT_WITH_REQUIRED)
         dg.add_int32(do_id)
         dg.add_int32(parent)
         dg.add_int32(zone)
         dg.add_int16(dclass_id)
-        // FIXME: Add required fields
+        // FIXME: Add required fields if any
         this.send_datagram(dg)
     }
 
-    public send_DBSERVER_CREATE_OBJECT(dclass_id: number, context: number): void {
+    public create_DB_object(dclass_id: number, context: number): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [this.dbss_channel])
         dg.add_int16(INTERNAL_MSG.DBSERVER_CREATE_OBJECT)
         dg.add_int32(context)
@@ -225,7 +259,7 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public send_DBSS_OBJECT_ACTIVATE_WITH_DEFAULTS(do_id: number, parent: number, zone: number): void {
+    public activate_DBSS_object(do_id: number, parent: number, zone: number): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
         dg.add_int16(INTERNAL_MSG.DBSS_OBJECT_ACTIVATE_WITH_DEFAULTS)
         dg.add_int32(do_id)
@@ -234,7 +268,7 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public send_CLIENTAGENT_SET_STATE(ca: channel, state: number, sender: channel): void {
+    public set_client_state(ca: channel, state: number, sender: channel): void {
         if (sender === BigInt(0)) sender = this.ai_channel
         let dg: Datagram = this.create_message_stub(sender, [ca])
         dg.add_int16(INTERNAL_MSG.CLIENTAGENT_SET_STATE)
@@ -242,16 +276,14 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public send_CLIENTAGENT_ADD_SESSION_OBJECT(do_id: number, client: channel): void {
+    public add_session_object(do_id: number, client: channel): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [client])
         dg.add_int16(INTERNAL_MSG.CLIENTAGENT_ADD_SESSION_OBJECT)
         dg.add_int32(do_id)
         this.send_datagram(dg)
     }
 
-    public send_CLIENTAGENT_ADD_INTEREST(
-        client: channel, interest_id: number, parent: number, zone: number): void {
-
+    public add_interest(client: channel, interest_id: number, parent: number, zone: number): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [client])
         dg.add_int16(INTERNAL_MSG.CLIENTAGENT_ADD_INTEREST)
         dg.add_int16(interest_id)
@@ -260,7 +292,7 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public send_STATESERVER_OBJECT_SET_OWNER(do_id: number, owner: channel): void {
+    public set_object_owner(do_id: number, owner: channel): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
         dg.add_int16(INTERNAL_MSG.STATESERVER_OBJECT_SET_OWNER)
         dg.add_int64(owner)
@@ -284,6 +316,8 @@ export class InternalRepository extends ObjectRepository {
 }
 
 export class ClientRepository extends ObjectRepository {
+    protected protocol: AstronProtocol = AstronProtocol.Client
+
     constructor(dc_file: string, host: string = "127.0.0.1", port: number = CA_PORT) {
         super(dc_file, (repo: Repository)=>{}, (err: Error)=>{}, host, port) // FIXME: Callbacks
     }

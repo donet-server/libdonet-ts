@@ -87,3 +87,9 @@ export class DatagramIteratorReadOutOfRange extends Error {
         super("The DatagramIterator object tried to read past the end of its buffer.")
     }
 }
+
+export class DistributedClassNotFound extends Error {
+    constructor() {
+        super("The ObjectRepository tried to look up a Distributed Class that does not exist in the DC file.")
+    }
+}

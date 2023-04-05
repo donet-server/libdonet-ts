@@ -10,7 +10,7 @@
 import { MODULE_DEBUG_FLAGS } from './globals'
 
 export class DistributedObject {
-    private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DIST_OBJECT
+    private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DISTRIBUTED_OBJECT
 
     constructor() {
         return // FIXME: Implement

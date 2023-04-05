@@ -15,6 +15,12 @@ export const CA_PORT: number = 6667
 // Type definitions
 export type channel = bigint // uint64
 
+// Astron Protocol Types
+/* `default` defined just as a placeholder so that we can define an
+    ObjectRepository's protocol type property before it is actually
+    initialized by the child class InternalRepository / ClientRepository. */
+export enum AstronProtocol { Internal = 0, Client = 1, default = 2 }
+
 export const enum ESC_COLOR {
     RESET = "\u001b[0m",
     RED = "\u001b[31;1m",
@@ -207,6 +213,6 @@ export const MODULE_DEBUG_FLAGS = {
     LEGACY_HASH: false,
     CONNECTION: false,
     DATAGRAM: false,
-    OBJECT_REPO: false,
-    DIST_OBJECT: false
+    OBJECT_REPOSITORY: false,
+    DISTRIBUTED_OBJECT: false
 }
