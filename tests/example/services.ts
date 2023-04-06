@@ -14,7 +14,7 @@ class AI {
 
     constructor() {
         this.repo = new InternalRepository({
-            dc_file: 'example.dc', channel: 300000, stateserver: 402000,
+            dc_file: 'example.dc', stateserver: 402000,
             success_callback: this.connection_success, failure_callback: this.connection_failure
         })
         this.repo.set_poll_rate(30.0) // 30 'frames' per second

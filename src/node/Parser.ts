@@ -7,7 +7,8 @@
     with this source code in a file named "LICENSE."
 */
 
-import { color_string, DC_SYNTAX, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS } from './globals'
+import { DC_SYNTAX, ESC_COLOR, MODULE_DEBUG_FLAGS, STATUS } from './globals'
+import { color_string } from './Utils'
 import * as error from './Errors'
 import * as fs from 'node:fs'
 

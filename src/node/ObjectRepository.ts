@@ -7,12 +7,13 @@
     with this source code in a file named "LICENSE."
 */
 
-import { MODULE_DEBUG_FLAGS, CA_PORT, MD_PORT, channel } from './globals'
+import { MODULE_DEBUG_FLAGS, CA_PORT, MD_PORT, channel, doID } from './globals'
 import { AstronProtocol, INTERNAL_MSG, CLIENT_MSG } from './globals'
 import { dcFile, Parser } from './Parser'
 import { Connection } from './Connection'
 import { DistributedObject } from './DistributedObject'
 import { Datagram, DatagramIterator } from './Datagram'
+import { unique_uint32, unique_uint64, sleep_milliseconds } from './Utils'
 import * as error from './Errors'
 
 export type Repository = ObjectRepository | InternalRepository | ClientRepository
@@ -128,7 +129,7 @@ export class ObjectRepository extends Connection {
                         this.handle_datagram(dg)
                     this.repo_poll_tasks()
                     // FIXME: calculate accurate delay time including poll time
-                    await delay((1 / this.dg_poll_rate) * 1000)
+                    await sleep_milliseconds((1 / this.dg_poll_rate) * 1000)
                 }
             } catch (err) {
                 throw err // not handled, just throw it :)
@@ -160,21 +161,25 @@ export class InternalRepository extends ObjectRepository {
     protected ss_channel: channel = BigInt(400000)
     protected dbss_channel: channel = BigInt(400001)
 
-    constructor(args: {dc_file: string, channel: number, success_callback: (repo: Repository)=>void,
-                        failure_callback: (err: Error)=>void, stateserver?: number, dbss?: number},
+    constructor(args: {dc_file: string, success_callback: (repo: Repository)=>void, failure_callback: (err: Error)=>void,
+                        ai_channel?: number, stateserver?: number, dbss?: number},
                         host: string = "127.0.0.1", port: number = MD_PORT) {
 
         super(args.dc_file, args.success_callback, args.failure_callback, host, port)
-        this.ai_channel = BigInt(args.channel)
+        if (args.ai_channel) {
+            this.ai_channel = BigInt(args.ai_channel)
+            // we don't have to wait until the socket is connected, because
+            // writing to a socket will automatically queue it if we're still connecting.
+            this.add_channel(this.ai_channel)
+        }
+        else this.ai_channel = this.allocate_channel()
+        // Set state server / DBSS channels if given
         if (args.stateserver) this.ss_channel = BigInt(args.stateserver)
         if (args.dbss) this.dbss_channel = BigInt(args.dbss)
 
         this.handlers = [
             [INTERNAL_MSG.STATESERVER_OBJECT_SET_FIELD, this.handle_STATESERVER_OBJECT_SET_FIELD]
         ]
-        // we don't have to wait until the socket is connected, because
-        // writing to a socket will automatically queue it if we're still connecting.
-        this.add_channel(this.ai_channel)
     }
 
     protected handle_datagram(dg: Datagram) {
@@ -203,9 +208,15 @@ export class InternalRepository extends ObjectRepository {
         return dg
     }
 
+    protected allocate_channel(): channel {
+        let channel_id: channel = unique_uint64() // from Utils.ts
+        this.add_channel(channel_id)
+        return channel_id
+    }
+
     // -------- Creating Distributed Objects --------- //
 
-    public create_object(cls_name: string, do_id: number, parent: number, zone: number, set_ai: boolean = false) {
+    public create_object(cls_name: string, do_id: doID, parent: number, zone: number, set_ai: boolean = false) {
         let dclass_id: number = this.dclass_name_to_id(cls_name)
         this.create_object_with_required(dclass_id, do_id, parent, zone)
         if (set_ai) this.set_object_AI(do_id)
@@ -213,7 +224,7 @@ export class InternalRepository extends ObjectRepository {
 
     // -------- Astron Internal Messages --------- //
 
-    public add_channel(channel: channel): void {
+    protected add_channel(channel: channel): void {
         // Note: control messages don't have sender fields
         let dg: Datagram = new Datagram()
         dg.add_int8(1) // recipient count
@@ -223,7 +234,7 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public set_object_AI(do_id: number): void {
+    public set_object_AI(do_id: doID): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
         dg.add_int16(INTERNAL_MSG.STATESERVER_OBJECT_SET_AI)
         dg.add_int64(this.ai_channel)
@@ -237,7 +248,7 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public create_object_with_required(dclass_id: number, do_id: number, parent: number, zone: number): void {
+    public create_object_with_required(dclass_id: number, do_id: doID, parent: number, zone: number): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [this.ss_channel])
         dg.add_int16(INTERNAL_MSG.STATESERVER_CREATE_OBJECT_WITH_REQUIRED)
         dg.add_int32(do_id)
@@ -259,7 +270,7 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public activate_DBSS_object(do_id: number, parent: number, zone: number): void {
+    public activate_DBSS_object(do_id: doID, parent: number, zone: number): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
         dg.add_int16(INTERNAL_MSG.DBSS_OBJECT_ACTIVATE_WITH_DEFAULTS)
         dg.add_int32(do_id)
@@ -276,7 +287,7 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public add_session_object(do_id: number, client: channel): void {
+    public add_session_object(do_id: doID, client: channel): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [client])
         dg.add_int16(INTERNAL_MSG.CLIENTAGENT_ADD_SESSION_OBJECT)
         dg.add_int32(do_id)
@@ -292,7 +303,7 @@ export class InternalRepository extends ObjectRepository {
         this.send_datagram(dg)
     }
 
-    public set_object_owner(do_id: number, owner: channel): void {
+    public set_object_owner(do_id: doID, owner: channel): void {
         let dg: Datagram = this.create_message_stub(this.ai_channel, [BigInt(do_id)])
         dg.add_int16(INTERNAL_MSG.STATESERVER_OBJECT_SET_OWNER)
         dg.add_int64(owner)
@@ -326,8 +337,4 @@ export class ClientRepository extends ObjectRepository {
         let dgi: DatagramIterator = new DatagramIterator(dg)
         throw new error.NotImplemented()
     }
-}
-
-function delay(ms: number): Promise<void> { // util function
-    return new Promise( resolve => setTimeout(resolve, ms) );
 }

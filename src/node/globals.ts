@@ -14,6 +14,7 @@ export const CA_PORT: number = 6667
 
 // Type definitions
 export type channel = bigint // uint64
+export type doID = number // uint32
 
 // Astron Protocol Types
 /* `default` defined just as a placeholder so that we can define an
@@ -28,9 +29,6 @@ export const enum ESC_COLOR {
     GREEN = "\u001b[32;1m",
     CYAN = "\u001b[36;1m",
     MAGENTA = "\u001b[35;1m"
-}
-export function color_string(str: string, color: ESC_COLOR): string {
-    return `${color}${str}${ESC_COLOR.RESET}`
 }
 export const enum STATUS { SUCCESS = 41094, FAILURE = 52081 }
 
