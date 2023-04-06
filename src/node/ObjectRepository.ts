@@ -216,7 +216,8 @@ export class InternalRepository extends ObjectRepository {
 
     // -------- Creating Distributed Objects --------- //
 
-    public create_object(cls_name: string, do_id: doID, parent: number, zone: number, set_ai: boolean = false) {
+    public create_object(cls_name: string, parent: number, zone: number, set_ai: boolean = false) {
+        let do_id: doID = unique_uint32()
         let dclass_id: number = this.dclass_name_to_id(cls_name)
         this.create_object_with_required(dclass_id, do_id, parent, zone)
         if (set_ai) this.set_object_AI(do_id)
