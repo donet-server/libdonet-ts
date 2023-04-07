@@ -9,6 +9,7 @@
 
 import { MODULE_DEBUG_FLAGS, CA_PORT, MD_PORT, channel, doID } from './globals'
 import { AstronProtocol, INTERNAL_MSG, CLIENT_MSG } from './globals'
+import { SS_DEFAULT, DBSS_DEFAULT } from './globals'
 import { dcFile, Parser } from './Parser'
 import { Connection } from './Connection'
 import { DistributedObject } from './DistributedObject'
@@ -26,9 +27,6 @@ export class ObjectRepository extends Connection {
     protected dclass_map: Array<Array<string | number>> = []
     protected distributed_objects: Array<DistributedObject> = []
     protected owner_views: Array<DistributedObject> = []
-    protected handlers: Array<Array<INTERNAL_MSG | InternalHandler>> = []
-    protected msg_to_response_map: Array<Array<INTERNAL_MSG>>
-    protected context_counters: Array<Array<INTERNAL_MSG | number>>
     protected callbacks: Array<(void)> = []
     protected dg_poll_rate: number = 30.0 // polls per second
     protected tasks: Array<()=>void> = [] // called per poll
@@ -38,46 +36,6 @@ export class ObjectRepository extends Connection {
 
         super(host, port, success, failure) // open the TCP socket connection
         this.dc_file = new Parser().parse_file(dc_file)
-
-        this.msg_to_response_map = [
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELD        , INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELD_RESP],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELDS       , INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELDS_RESP],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ALL          , INTERNAL_MSG.STATESERVER_OBJECT_GET_ALL_RESP],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_LOCATION     , INTERNAL_MSG.STATESERVER_OBJECT_GET_LOCATION_RESP],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_AI           , INTERNAL_MSG.STATESERVER_OBJECT_GET_AI_RESP],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_OWNER        , INTERNAL_MSG.STATESERVER_OBJECT_GET_OWNER_RESP],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONE_COUNT   , INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONE_COUNT_RESP],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONES_COUNT  , INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONES_COUNT_RESP],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_CHILD_COUNT  , INTERNAL_MSG.STATESERVER_OBJECT_GET_CHILD_COUNT_RESP],
-            [INTERNAL_MSG.DBSS_OBJECT_GET_ACTIVATED           , INTERNAL_MSG.DBSS_OBJECT_GET_ACTIVATED_RESP],
-            [INTERNAL_MSG.DBSERVER_CREATE_OBJECT              , INTERNAL_MSG.DBSERVER_CREATE_OBJECT_RESP],
-            [INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELD           , INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELD_RESP],
-            [INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELDS          , INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELDS_RESP],
-            [INTERNAL_MSG.DBSERVER_OBJECT_GET_ALL             , INTERNAL_MSG.DBSERVER_OBJECT_GET_ALL_RESP],
-            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EQUALS , INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EQUALS_RESP],
-            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELDS_IF_EQUALS, INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELDS_IF_EQUALS_RESP],
-            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EMPTY  , INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EMPTY_RESP],
-        ]
-
-        this.context_counters = [
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELD_RESP        , 0],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELDS_RESP       , 0],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ALL_RESP          , 0],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_LOCATION_RESP     , 0],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_AI_RESP           , 0],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_OWNER_RESP        , 0],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONE_COUNT_RESP   , 0],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONES_COUNT_RESP  , 0],
-            [INTERNAL_MSG.STATESERVER_OBJECT_GET_CHILD_COUNT_RESP  , 0],
-            [INTERNAL_MSG.DBSS_OBJECT_GET_ACTIVATED_RESP           , 0],
-            [INTERNAL_MSG.DBSERVER_CREATE_OBJECT_RESP              , 0],
-            [INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELD_RESP           , 0],
-            [INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELDS_RESP          , 0],
-            [INTERNAL_MSG.DBSERVER_OBJECT_GET_ALL_RESP             , 0],
-            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EQUALS_RESP , 0],
-            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELDS_IF_EQUALS_RESP, 0],
-            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EMPTY_RESP  , 0],
-        ]
 
         // Map Distributed Classes in DC file to their IDs
         let dclass_id: number = 0
@@ -147,9 +105,6 @@ export class ObjectRepository extends Connection {
         for (let i = 0; i < this.tasks.length; i++)
             this.tasks[i]()
     }
-    protected send_datagram(dg: Datagram) {
-        this.notify('ObjectRepository.send_datagram() was called, but was not over-ridden.')
-    }
     protected handle_datagram(dg: Datagram) {
         this.notify('ObjectRepository.handle_datagram() was called, but was not over-ridden.')
     }
@@ -157,26 +112,74 @@ export class ObjectRepository extends Connection {
 
 export class InternalRepository extends ObjectRepository {
     protected protocol: AstronProtocol = AstronProtocol.Internal
-    protected ai_channel: channel
-    protected ss_channel: channel = BigInt(400000)
-    protected dbss_channel: channel = BigInt(400001)
+    protected ai_channel: channel = BigInt(0) // initialized after socket is connected
+    protected ss_channel: channel = SS_DEFAULT
+    protected dbss_channel: channel = DBSS_DEFAULT
+    protected handlers: Array<Array<INTERNAL_MSG | InternalHandler>> = []
+    protected msg_to_response_map: Array<Array<INTERNAL_MSG>>
+    protected context_counters: Array<Array<INTERNAL_MSG | number>>
 
-    constructor(args: {dc_file: string, success_callback: (repo: Repository)=>void, failure_callback: (err: Error)=>void,
+    constructor(args: {dc_file: string, success_callback: (repo: InternalRepository) => void,
+                        failure_callback: (err: Error) => void,
                         ai_channel?: number, stateserver?: number, dbss?: number},
                         host: string = "127.0.0.1", port: number = MD_PORT) {
 
-        super(args.dc_file, args.success_callback, args.failure_callback, host, port)
+        super(args.dc_file, (repo: Repository) => {
+            // @ts-ignore   It is assured that `repo` will be of type `InternalRepository`.
+            let repo_cast: InternalRepository = repo
+            args.success_callback(repo_cast) // send 'repo' arg as type `InternalRepository`
+        }, args.failure_callback, host, port)
+
         if (args.ai_channel) {
             this.ai_channel = BigInt(args.ai_channel)
             // we don't have to wait until the socket is connected, because
             // writing to a socket will automatically queue it if we're still connecting.
             this.add_channel(this.ai_channel)
         }
-        else this.ai_channel = this.allocate_channel()
+        else this.ai_channel = this.allocate_channel() // allocate our own unique uint64 ID
         // Set state server / DBSS channels if given
         if (args.stateserver) this.ss_channel = BigInt(args.stateserver)
         if (args.dbss) this.dbss_channel = BigInt(args.dbss)
 
+        this.msg_to_response_map = [
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELD        , INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELD_RESP],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELDS       , INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELDS_RESP],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ALL          , INTERNAL_MSG.STATESERVER_OBJECT_GET_ALL_RESP],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_LOCATION     , INTERNAL_MSG.STATESERVER_OBJECT_GET_LOCATION_RESP],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_AI           , INTERNAL_MSG.STATESERVER_OBJECT_GET_AI_RESP],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_OWNER        , INTERNAL_MSG.STATESERVER_OBJECT_GET_OWNER_RESP],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONE_COUNT   , INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONE_COUNT_RESP],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONES_COUNT  , INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONES_COUNT_RESP],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_CHILD_COUNT  , INTERNAL_MSG.STATESERVER_OBJECT_GET_CHILD_COUNT_RESP],
+            [INTERNAL_MSG.DBSS_OBJECT_GET_ACTIVATED           , INTERNAL_MSG.DBSS_OBJECT_GET_ACTIVATED_RESP],
+            [INTERNAL_MSG.DBSERVER_CREATE_OBJECT              , INTERNAL_MSG.DBSERVER_CREATE_OBJECT_RESP],
+            [INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELD           , INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELD_RESP],
+            [INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELDS          , INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELDS_RESP],
+            [INTERNAL_MSG.DBSERVER_OBJECT_GET_ALL             , INTERNAL_MSG.DBSERVER_OBJECT_GET_ALL_RESP],
+            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EQUALS , INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EQUALS_RESP],
+            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELDS_IF_EQUALS, INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELDS_IF_EQUALS_RESP],
+            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EMPTY  , INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EMPTY_RESP],
+        ]
+
+        this.context_counters = [
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELD_RESP        , 0],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_FIELDS_RESP       , 0],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ALL_RESP          , 0],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_LOCATION_RESP     , 0],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_AI_RESP           , 0],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_OWNER_RESP        , 0],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONE_COUNT_RESP   , 0],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_ZONES_COUNT_RESP  , 0],
+            [INTERNAL_MSG.STATESERVER_OBJECT_GET_CHILD_COUNT_RESP  , 0],
+            [INTERNAL_MSG.DBSS_OBJECT_GET_ACTIVATED_RESP           , 0],
+            [INTERNAL_MSG.DBSERVER_CREATE_OBJECT_RESP              , 0],
+            [INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELD_RESP           , 0],
+            [INTERNAL_MSG.DBSERVER_OBJECT_GET_FIELDS_RESP          , 0],
+            [INTERNAL_MSG.DBSERVER_OBJECT_GET_ALL_RESP             , 0],
+            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EQUALS_RESP , 0],
+            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELDS_IF_EQUALS_RESP, 0],
+            [INTERNAL_MSG.DBSERVER_OBJECT_SET_FIELD_IF_EMPTY_RESP  , 0],
+        ]
         this.handlers = [
             [INTERNAL_MSG.STATESERVER_OBJECT_SET_FIELD, this.handle_STATESERVER_OBJECT_SET_FIELD]
         ]
@@ -225,13 +228,13 @@ export class InternalRepository extends ObjectRepository {
 
     // -------- Astron Internal Messages --------- //
 
-    protected add_channel(channel: channel): void {
+    protected add_channel(channel_id: channel): void {
         // Note: control messages don't have sender fields
         let dg: Datagram = new Datagram()
         dg.add_int8(1) // recipient count
         dg.add_int64(BigInt(1)) // control channel
         dg.add_int16(INTERNAL_MSG.CONTROL_ADD_CHANNEL)
-        dg.add_int64(channel)
+        dg.add_int64(channel_id)
         this.send_datagram(dg)
     }
 

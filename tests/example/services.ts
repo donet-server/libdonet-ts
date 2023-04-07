@@ -7,7 +7,7 @@
     with this source code in a file named "LICENSE."
 */
 
-import {InternalRepository, Repository} from './../../'
+import { InternalRepository } from './../../'
 
 class AI {
     private repo: InternalRepository
@@ -20,7 +20,7 @@ class AI {
         this.repo.set_poll_rate(30.0) // 30 'frames' per second
     }
 
-    private connection_success(repo: Repository): void {
+    private connection_success(repo: InternalRepository): void {
         console.log("Internal Repository connected!")
         repo.poll_forever() // note: this method is asynchronous
     }

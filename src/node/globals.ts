@@ -16,6 +16,10 @@ export const CA_PORT: number = 6667
 export type channel = bigint // uint64
 export type doID = number // uint32
 
+// Default Astron role channels
+export const SS_DEFAULT: channel = BigInt(400000)
+export const DBSS_DEFAULT: channel = BigInt(400001)
+
 // Astron Protocol Types
 /* `default` defined just as a placeholder so that we can define an
     ObjectRepository's protocol type property before it is actually
