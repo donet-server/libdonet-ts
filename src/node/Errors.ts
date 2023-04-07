@@ -93,3 +93,9 @@ export class DistributedClassNotFound extends Error {
         super("The ObjectRepository tried to look up a Distributed Class that does not exist in the DC file.")
     }
 }
+
+export class DClassViewNotFound extends Error {
+    constructor() {
+        super("The ObjectRepository tried to import a Distributed Class that does not exist in the import file.")
+    }
+}

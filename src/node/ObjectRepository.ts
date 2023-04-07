@@ -15,16 +15,19 @@ import { Connection } from './Connection'
 import { DistributedObject } from './DistributedObject'
 import { Datagram, DatagramIterator } from './Datagram'
 import { unique_uint32, unique_uint64, sleep_milliseconds } from './Utils'
+import * as process from 'node:process'
 import * as error from './Errors'
 
 export type Repository = ObjectRepository | InternalRepository | ClientRepository
+type DClassViewMapEntry = Array<string | number | DistributedObject> // [class_name, dclass_id, class]
 type InternalHandler = (dgi: DatagramIterator, sender: channel, recipients: Array<channel>)=>void
 
 export class ObjectRepository extends Connection {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPOSITORY
     protected protocol: AstronProtocol = AstronProtocol.default
     protected dc_file: dcFile
-    protected dclass_map: Array<Array<string | number>> = []
+    protected dclass_id_map: Array<Array<string | number>> = []
+    protected dclass_view_map: Array<DClassViewMapEntry> = []
     protected distributed_objects: Array<DistributedObject> = []
     protected owner_views: Array<DistributedObject> = []
     protected callbacks: Array<(void)> = []
@@ -36,27 +39,70 @@ export class ObjectRepository extends Connection {
 
         super(host, port, success, failure) // open the TCP socket connection
         this.dc_file = new Parser().parse_file(dc_file)
+        this.import_dclass_views()
+        //console.dir(this.dclass_id_map, {depth: null})
+        //console.dir(this.dclass_view_map, {depth: null})
+    }
 
-        // Map Distributed Classes in DC file to their IDs
+    private import_dclass_views(): void {
+        /*
+            Run `ParserTest.js` under the tests folder to visualize
+            the output of the parser, which explains the code below.
+         */
+        const dclass_imports: dcFile = []
+        for (let i = 0; i < this.dc_file.length; i++)
+            if (this.dc_file[i][0] === 'import') dclass_imports.push(this.dc_file[i])
+
         let dclass_id: number = 0
         for (let i = 0; i < this.dc_file.length; i++) {
             let dc_object: Array<string | Array<any>> = this.dc_file[i]
             if (dc_object[0] !== 'dclass') continue
-            // @ts-ignore  It's assured that index '1' of `dc_object` is a string.
-            this.dclass_map.push([dc_object[1], dclass_id])
+            // @ts-ignore  Index '1' of a dcFile object is always a string.
+            let class_name: string = dc_object[1]
+
+            for (let i = 0; i < dclass_imports.length; i++) {
+                // @ts-ignore  Index '2' of an import object is always a string array.
+                let views: Array<string> = dclass_imports[i][2]
+                let import_class_name: string = views[0]
+                if (!(class_name === import_class_name)) continue
+                // @ts-ignore  Index '1' of a dcFile object is always a string.
+                let import_file: string = dclass_imports[i][1];
+
+                // import file (check OS platform for correct path format)
+                let dir_slash: string = '/' // default: linux
+                if (process.platform === 'win32') dir_slash = '\\'
+                const dynamic_import = require(`${process.cwd()}${dir_slash}${import_file}`)
+
+                for (let i = 0; i < views.length; i++) {
+                    const dclass_view = dynamic_import[views[i]]
+                    if (dclass_view === undefined) throw new error.DClassViewNotFound()
+                    // @ts-ignore  It's assured that index '1' of `dc_object` is a string.
+                    this.dclass_view_map.push([views[i], dclass_id, dclass_view])
+                }
+            }
+            this.dclass_id_map.push([class_name, dclass_id])
             dclass_id++
         }
-        //console.dir(this.dclass_map, {depth: null})
     }
 
-    public dclass_name_to_id(dclass_name: string): number {
-        for (let i = 0; i < this.dclass_map.length; i++) {
-            let dclass_entry: Array<string | number> = this.dclass_map[i]
+    protected dclass_name_to_id(dclass_name: string): number {
+        for (let i = 0; i < this.dclass_id_map.length; i++) {
+            let dclass_entry: Array<string | number> = this.dclass_id_map[i]
             if (dclass_entry[0] !== dclass_name) continue
             // @ts-ignore  index '1' of `dclass_entry` will *always* be a number.
             return dclass_entry[1]
         }
         throw new error.DistributedClassNotFound() // we ran through the whole list ;-;
+    }
+
+    protected dclass_id_to_name(dclass_id: number): void {
+        for (let i = 0; i < this.dclass_id_map.length; i++) {
+            let dclass_entry: Array<string | number> = this.dclass_id_map[i]
+            if (dclass_entry[1] !== dclass_id) continue
+            // @ts-ignore  index '0' of `dclass_entry` is guaranteed to be a number.
+            return dclass_entry[0]
+        }
+        throw new error.DistributedClassNotFound()
     }
 
     public poll_until_empty(): boolean {
