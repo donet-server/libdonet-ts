@@ -130,7 +130,7 @@ export class Datagram extends DatagramBase {
 
     private create_size_tag(size: number): Buffer {
         let size_uint16: Buffer = Buffer.alloc(2) // 2 bytes = 16 bits
-        size_uint16.writeUint16LE(size_uint16.length, 0) // writing little-endian order
+        size_uint16.writeUint16LE(size, 0) // writing little-endian order
         return size_uint16
     }
 }

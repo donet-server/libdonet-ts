@@ -22,6 +22,7 @@ class AI {
 
     private connection_success(repo: InternalRepository): void {
         console.log("Internal Repository connected!")
+        repo.write_event_log({"type": "ai_connect", "sender": "test", "data": "test"})
         repo.poll_forever() // note: this method is asynchronous
     }
 

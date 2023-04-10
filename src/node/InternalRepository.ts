@@ -261,9 +261,10 @@ export class InternalRepository extends ObjectRepository {
     }
 
     public write_event_log(message: Object): void {
+        let data_blob: Buffer = Buffer.from(JSON.stringify(message))
         let dg: Datagram = this.create_message_stub([BigInt(RESERVED_CHANNELS.CONTROL)])
         dg.add_int16(INTERNAL_MSG.CONTROL_LOG_MESSAGE)
-
+        dg.add_blob(data_blob)
         this.send_datagram(dg)
     }
 
@@ -271,5 +272,11 @@ export class InternalRepository extends ObjectRepository {
 
     private handle_STATESERVER_OBJECT_SET_FIELD(dgi: DatagramIterator, sender: channel, recipients: Array<channel>) {
         return // FIXME: Implement
+    }
+
+    // -------- Getters --------- //
+
+    public get_AI_channel(): channel {
+        return this.ai_channel
     }
 }
