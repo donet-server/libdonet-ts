@@ -20,6 +20,7 @@ import * as error from './Errors'
 
 export type Repository = ObjectRepository | InternalRepository | ClientRepository
 type DClassViewMapEntry = Array<string | number | DistributedObject> // [class_name, dclass_id, class]
+type DistributedObjectEntry = Array<number | DistributedObject> // [do_id, DistributedObject]
 type InternalHandler = (dgi: DatagramIterator, sender: channel, recipients: Array<channel>)=>void
 
 export class ObjectRepository extends Connection {
@@ -28,7 +29,7 @@ export class ObjectRepository extends Connection {
     protected dc_file: dcFile
     protected dclass_id_map: Array<Array<string | number>> = []
     protected dclass_view_map: Array<DClassViewMapEntry> = []
-    protected distributed_objects: Array<DistributedObject> = []
+    protected distributed_objects: Array<DistributedObjectEntry> = []
     protected owner_views: Array<DistributedObject> = []
     protected callbacks: Array<(void)> = []
     protected dg_poll_rate: number = 30.0 // polls per second
@@ -85,7 +86,7 @@ export class ObjectRepository extends Connection {
         }
     }
 
-    protected dclass_name_to_id(dclass_name: string): number {
+    public dclass_name_to_id(dclass_name: string): number {
         for (let i = 0; i < this.dclass_id_map.length; i++) {
             let dclass_entry: Array<string | number> = this.dclass_id_map[i]
             if (dclass_entry[0] !== dclass_name) continue
@@ -95,7 +96,7 @@ export class ObjectRepository extends Connection {
         throw new error.DistributedClassNotFound() // we ran through the whole list ;-;
     }
 
-    protected dclass_name_to_class(dclass_name: string, view_type: string): void {
+    public dclass_name_to_class(dclass_name: string, view_type: string): DistributedObject {
         // verify that `view_type` is valid ('AI', 'OV', 'UD', etc.)
         if (VIEW_TYPES.indexOf(view_type) === -1)
             throw new error.InvalidDistributedObjectViewType()
@@ -109,7 +110,7 @@ export class ObjectRepository extends Connection {
         throw new error.DClassViewNotFound()
     }
 
-    protected dclass_id_to_name(dclass_id: number): void {
+    public dclass_id_to_name(dclass_id: number): void {
         for (let i = 0; i < this.dclass_id_map.length; i++) {
             let dclass_entry: Array<string | number> = this.dclass_id_map[i]
             if (dclass_entry[1] !== dclass_id) continue
@@ -119,7 +120,7 @@ export class ObjectRepository extends Connection {
         throw new error.DistributedClassNotFound()
     }
 
-    protected dclass_id_to_class(dclass_id: number, view_type: string): void {
+    public dclass_id_to_class(dclass_id: number, view_type: string): DistributedObject {
         // verify that `view_type` is valid ('AI', 'OV', 'UD', etc.)
         if (VIEW_TYPES.indexOf(view_type) === -1)
             throw new error.InvalidDistributedObjectViewType()
@@ -133,6 +134,15 @@ export class ObjectRepository extends Connection {
             if (map_entry[0] === class_name) return map_entry[2]
         }
         throw new error.DClassViewNotFound()
+    }
+
+    public dist_object_by_id(do_id: doID): DistributedObject {
+        for (let i = 0; i < this.distributed_objects.length; i++) {
+            let do_entry: DistributedObjectEntry = this.distributed_objects[i]
+            // @ts-ignore  `do_entry` arrays are always formatted first ID then object.
+            if (do_entry[0] === do_id) return do_entry[1]
+        }
+        throw new error.DistributedObjectNotFound()
     }
 
     public poll_until_empty(): boolean {
