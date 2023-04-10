@@ -15,12 +15,31 @@ This is a long jump to create a Javascript client library for the Astron network
 
 Read the full system / protocol documentation for the Astron server [here](https://github.com/Astron/Astron).
 
+**MAJOR MISSING FEATURES:**
+
+- Client Repository (including LegacyHash for CLIENT_HELLO handshake)
+- Accept Secure Websocket (WSS) connections from the Astron Client Agent
+- Lots of Astron Internal messages
+- Packing / Unpacking of REQUIRED & OTHER fields
+
+Getting Started
+=============
+
+The major component to an MMO powered by Astron is the Astron daemon itself.
+
+Before starting, compile the latest build of Astron using the instructions [here.](https://github.com/Astron/Astron/blob/master/docs/building/build-readme.md)
+
+**NOTE:** As of April 2023, there is an issue in the Astron client agent where adding
+interest to a client results in a timeout and then a segmentation fault occurs due to
+a memory access violation. I'm trying to work out this issue, but for now please build
+Astron using the `-DCMAKE_BUILD_TYPE=Debug` flag. This lowers the chance of an Interest Operation timeout.
+
 Installation
 ==========
 
 The libastron-js repository will provide 2 different NPM packages once it reaches it's first release:
-- `astron.libts.node`
-- `astron.libts.chrome`
+- `astron.node`
+- `astron.chrome`
 
 When the project matures (and a chrome version is written), a github workflow will handle publishing both packages.
 
@@ -28,14 +47,14 @@ The chrome release of the project will most likely have to be installed as a nod
 
 The following steps show how it _**will be**_ to install either package after the first release.
 ```shell
-npm install astron.libts.node
-npm install astron.libts.chrome
+npm install astron.node
+npm install astron.chrome
 ```
 
 Or if you're using the **yarn** (NPM-based) package manager:
 ```shell
-yarn add astron.libts.node
-yarn add astron.libts.chrome
+yarn add astron.node
+yarn add astron.chrome
 ```
 
 Contributing
