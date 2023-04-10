@@ -96,6 +96,13 @@ export class DistributedClassNotFound extends Error {
 
 export class DClassViewNotFound extends Error {
     constructor() {
-        super("The ObjectRepository tried to import a Distributed Class that does not exist in the import file.")
+        super("The ObjectRepository tried to import or find a Distributed Object view that does not exist.")
+    }
+}
+
+export class InvalidDistributedObjectViewType extends Error {
+    constructor() {
+        super("An invalid Distributed Object view type (e.g. 'AI', 'OV') was given" +
+            "as an argument to an ObjectRepository method.")
     }
 }

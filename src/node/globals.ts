@@ -38,6 +38,8 @@ export const enum CLIENT_STATES {
     NEW = 0, ANONYMOUS = 1, ESTABLISHED = 2
 }
 
+export const VIEW_TYPES: Array<string> = ["OV", "AI", "AE", "UD"]
+
 export const DC_SYNTAX = {
     KEYWORDS: [
         "dclass", "struct", "typedef", "keyword", "from"

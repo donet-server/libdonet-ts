@@ -8,7 +8,7 @@
 */
 
 import { MODULE_DEBUG_FLAGS, CA_PORT, MD_PORT, channel, doID } from './globals'
-import { AstronProtocol, INTERNAL_MSG, CLIENT_MSG, RESERVED_CHANNELS } from './globals'
+import { AstronProtocol, INTERNAL_MSG, CLIENT_MSG, RESERVED_CHANNELS, VIEW_TYPES } from './globals'
 import { SS_DEFAULT, DBSS_DEFAULT } from './globals'
 import { dcFile, Parser } from './Parser'
 import { Connection } from './Connection'
@@ -95,6 +95,20 @@ export class ObjectRepository extends Connection {
         throw new error.DistributedClassNotFound() // we ran through the whole list ;-;
     }
 
+    protected dclass_name_to_class(dclass_name: string, view_type: string): void {
+        // verify that `view_type` is valid ('AI', 'OV', 'UD', etc.)
+        if (VIEW_TYPES.indexOf(view_type) === -1)
+            throw new error.InvalidDistributedObjectViewType()
+        let class_name: string = dclass_name.concat(view_type)
+
+        for (let i = 0; i < this.dclass_view_map.length; i++) {
+            let map_entry: DClassViewMapEntry = this.dclass_view_map[i]
+            // @ts-ignore  `map_entry` index of '2' is always a class that inherits `DistributedObject`
+            if (map_entry[0] === class_name) return map_entry[2]
+        }
+        throw new error.DClassViewNotFound()
+    }
+
     protected dclass_id_to_name(dclass_id: number): void {
         for (let i = 0; i < this.dclass_id_map.length; i++) {
             let dclass_entry: Array<string | number> = this.dclass_id_map[i]
@@ -103,6 +117,22 @@ export class ObjectRepository extends Connection {
             return dclass_entry[0]
         }
         throw new error.DistributedClassNotFound()
+    }
+
+    protected dclass_id_to_class(dclass_id: number, view_type: string): void {
+        // verify that `view_type` is valid ('AI', 'OV', 'UD', etc.)
+        if (VIEW_TYPES.indexOf(view_type) === -1)
+            throw new error.InvalidDistributedObjectViewType()
+
+        // @ts-ignore  `dclass_id_map` entry first element is always a string. (class name)
+        let class_name: string = this.dclass_id_map[dclass_id][0].concat(view_type)
+
+        for (let i = 0; i < this.dclass_view_map.length; i++) {
+            let map_entry: DClassViewMapEntry = this.dclass_view_map[i]
+            // @ts-ignore  `map_entry` index of '2' is always a class that inherits `DistributedObject`
+            if (map_entry[0] === class_name) return map_entry[2]
+        }
+        throw new error.DClassViewNotFound()
     }
 
     public poll_until_empty(): boolean {
