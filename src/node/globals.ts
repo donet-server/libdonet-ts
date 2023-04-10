@@ -12,6 +12,12 @@ export const DIST_TYPE: string = "node"
 export const MD_PORT: number = 7199
 export const CA_PORT: number = 6667
 
+// Astron Protocol Types
+/* `default` defined just as a placeholder so that we can define an
+    ObjectRepository's protocol type property before it is actually
+    initialized by the child class InternalRepository / ClientRepository. */
+export enum AstronProtocol { Internal = 0, Client = 1, default = 2 }
+
 // Type definitions
 export type channel = bigint // uint64
 export type doID = number // uint32
@@ -20,21 +26,17 @@ export type doID = number // uint32
 export const SS_DEFAULT: channel = BigInt(400000)
 export const DBSS_DEFAULT: channel = BigInt(400001)
 
-// Astron Protocol Types
-/* `default` defined just as a placeholder so that we can define an
-    ObjectRepository's protocol type property before it is actually
-    initialized by the child class InternalRepository / ClientRepository. */
-export enum AstronProtocol { Internal = 0, Client = 1, default = 2 }
-
-export const enum ESC_COLOR {
-    RESET = "\u001b[0m",
-    RED = "\u001b[31;1m",
-    YELLOW = "\u001b[33;1m",
-    GREEN = "\u001b[32;1m",
-    CYAN = "\u001b[36;1m",
-    MAGENTA = "\u001b[35;1m"
+export const enum RESERVED_CHANNELS {
+    INVALID = 0,
+    CONTROL = 1,
+    ALL_CLIENTS = 10,
+    ALL_STATE_SERVERS = 12,
+    ALL_DATABASE_SERVERS = 13
 }
-export const enum STATUS { SUCCESS = 41094, FAILURE = 52081 }
+
+export const enum CLIENT_STATES {
+    NEW = 0, ANONYMOUS = 1, ESTABLISHED = 2
+}
 
 export const DC_SYNTAX = {
     KEYWORDS: [
@@ -218,3 +220,13 @@ export const MODULE_DEBUG_FLAGS = {
     OBJECT_REPOSITORY: false,
     DISTRIBUTED_OBJECT: false
 }
+
+export const enum ESC_COLOR {
+    RESET = "\u001b[0m",
+    RED = "\u001b[31;1m",
+    YELLOW = "\u001b[33;1m",
+    GREEN = "\u001b[32;1m",
+    CYAN = "\u001b[36;1m",
+    MAGENTA = "\u001b[35;1m"
+}
+export const enum STATUS { SUCCESS = 41094, FAILURE = 52081 }

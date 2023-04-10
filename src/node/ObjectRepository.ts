@@ -8,7 +8,7 @@
 */
 
 import { MODULE_DEBUG_FLAGS, CA_PORT, MD_PORT, channel, doID } from './globals'
-import { AstronProtocol, INTERNAL_MSG, CLIENT_MSG } from './globals'
+import { AstronProtocol, INTERNAL_MSG, CLIENT_MSG, RESERVED_CHANNELS } from './globals'
 import { SS_DEFAULT, DBSS_DEFAULT } from './globals'
 import { dcFile, Parser } from './Parser'
 import { Connection } from './Connection'
@@ -278,7 +278,7 @@ export class InternalRepository extends ObjectRepository {
         // Note: control messages don't have sender fields
         let dg: Datagram = new Datagram()
         dg.add_int8(1) // recipient count
-        dg.add_int64(BigInt(1)) // control channel
+        dg.add_int64(BigInt(RESERVED_CHANNELS.CONTROL))
         dg.add_int16(INTERNAL_MSG.CONTROL_ADD_CHANNEL)
         dg.add_int64(channel_id)
         this.send_datagram(dg)
