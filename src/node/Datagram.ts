@@ -7,9 +7,9 @@
     with this source code in a file named "LICENSE."
 */
 
-import { MODULE_DEBUG_FLAGS } from './globals'
+import {MODULE_DEBUG_FLAGS} from './globals'
 import * as error from './Errors'
-import { Buffer } from 'node:buffer'
+import {Buffer} from 'node:buffer'
 
 class DatagramBase {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DATAGRAM
@@ -122,7 +122,10 @@ export class Datagram extends DatagramBase {
     }
 
     public add_blob(data: Buffer): void {
-        throw new error.NotImplemented()
+        // check that the blob is not too large!
+        if (data.length > (2 ** 16)) throw new error.DatagramBlobOutOfRange()
+        let size_tag: Buffer = this.create_size_tag(data.length)
+        this.add_data([size_tag, data])
     }
 
     private create_size_tag(size: number): Buffer {
@@ -232,6 +235,7 @@ export class DatagramIterator extends DatagramBase {
     }
 
     public read_blob(): Buffer {
-        throw new error.NotImplemented()
+        let size: number = this.read_uint16() // read size tag
+        return this.read_data(size)
     }
 }

@@ -72,7 +72,13 @@ export class DatagramIntOutOfRange extends Error {
 
 export class DatagramStringOutOfRange extends Error {
     constructor() {
-        super("The Datagram object tried to write a string that was too large for a uint16 size.")
+        super("The Datagram object tried to write a string that was too large for a uint16 size tag.")
+    }
+}
+
+export class DatagramBlobOutOfRange extends Error {
+    constructor() {
+        super("The Datagram object tried to write a blob that was too large for a uint16 size tag.")
     }
 }
 
