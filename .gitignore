@@ -8,5 +8,6 @@ package-lock.json
 *.lock
 # Build files
 dist/
-*.js
+tests/*.js
+tests/example/*.js
 *.log
