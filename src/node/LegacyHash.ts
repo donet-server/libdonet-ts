@@ -26,8 +26,16 @@ const enum LegacyType {
     L_INVALID = 20
 }
 
-// Generates an unsigned 32-bit hash based on input given.
-// Inspired by Astron's dclass hash gen.
+/**
+ * Generates an unsigned 32-bit hash based on input given.
+ *
+ * @remarks
+ * Used to generate the uint32 hash of the DC file which is sent
+ * during the handshake process in the CLIENT_HELLO message.
+ * Inspired by the hash generator from {@link https://github.com/Astron/Bamboo}.
+ *
+ * @internal
+ */
 class HashGenerator {
     private MAX_PRIME_NUMBERS: number = 10000
     private primes: Array<number> = [2]
@@ -80,6 +88,14 @@ class HashGenerator {
     }
 }
 
+/**
+ * Generates an unsigned int32 hash for the parsed DC file data using the Legacy method.
+ *
+ * @remarks
+ * Heavily inspired from {@link https://github.com/Astron/Bamboo/blob/master/src/traits/hashLegacy.cpp}
+ *
+ * @internal
+ */
 export class LegacyHash {
     private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.LEGACY_HASH
     private hash_gen: HashGenerator

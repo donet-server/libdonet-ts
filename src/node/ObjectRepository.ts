@@ -24,6 +24,17 @@ type DClassViewMapEntry = Array<string | number | DistributedObject> // [class_n
 type DistributedObjectEntry = Array<number | DistributedObject> // [do_id, DistributedObject]
 export type InternalHandler = (dgi: DatagramIterator, sender: channel, recipients: Array<channel>)=>void
 
+/**
+ * The parent class for `ClientRepository` and `InternalRepository` classes.
+ *
+ * @param dc_file - The path/filename of the DC file to parse.
+ * @param success - Callback function for a successful connection to the Astron server.
+ * @param failure - Callback function. Called when the socket emits an error event.
+ * @param host - The IPv4 address of the Astron server. (ClientAgent/MessageDirector)
+ * @param port - The port to use in the connection.
+ *
+ * @public
+ */
 export class ObjectRepository extends Connection {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPOSITORY
     protected protocol: AstronProtocol = AstronProtocol.default

@@ -7,10 +7,14 @@
     with this source code in a file named "LICENSE."
 */
 
-import {MODULE_DEBUG_FLAGS} from './globals'
+import { MODULE_DEBUG_FLAGS } from './globals'
 import * as error from './Errors'
-import {Buffer} from 'node:buffer'
+import { Buffer } from 'node:buffer'
 
+/**
+ * The parent class of `Datagram` and `DatagramIterator` classes.
+ * @internal
+ */
 class DatagramBase {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.DATAGRAM
     protected dg_buffer: Buffer = Buffer.alloc(0)
@@ -28,16 +32,20 @@ class DatagramBase {
     }
 }
 
+/**
+ * Represents a network packet to be sent to the Astron server.
+ *
+ * @remarks
+ * Something to note is that there are only `add_int` methods
+ * and no `add_uint` methods. This is because the `add_int` methods
+ * automatically check if the given number is signed, and write
+ * it as a signed or unsigned integer accordingly.
+ *
+ * @public
+ */
 export class Datagram extends DatagramBase {
-    /*
-        Something to note is that there are only `add_int` methods
-        and no `add_uint` methods. This is because the `add_int` methods
-        automatically check if the given number is signed, and write
-        it as a signed or unsigned integer accordingly.
-     */
-    constructor() {
-        super()
-    }
+    constructor() { super() }
+
     public add_data(buffers: Array<Buffer>): void {
         let buff_array: Array<Buffer> = [this.dg_buffer]
         for (let i = 0; i < buffers.length; i++)
@@ -135,6 +143,14 @@ export class Datagram extends DatagramBase {
     }
 }
 
+/**
+ * Represents a packet received from the Astron server.
+ *
+ * @remarks
+ * This class is used to read the raw data from a Datagram by data types.
+ *
+ * @public
+ */
 export class DatagramIterator extends DatagramBase {
     private dg_offset: number = 0 // bytes; incremented every read
 

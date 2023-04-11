@@ -16,6 +16,17 @@ import * as net from 'node:net'
 
 const DATAGRAM_HEADER_SIZE: number = 2 // bytes
 
+/**
+ * Creates a socket and establishes a connection to the Astron server.
+ * Reads data received through the socket and allows for polling of datagrams.
+ *
+ * @param host - The host IPv4 address to connect to.
+ * @param port - The port to use in the connection.
+ * @param success - Callback function to call when the socket emits the 'connect' event.
+ * @param failure - Callback function to call when the socket emits the 'error' event.
+ *
+ * @internal
+ */
 export class Connection {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.CONNECTION
     protected connected: boolean = false

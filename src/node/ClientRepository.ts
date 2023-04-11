@@ -12,6 +12,15 @@ import { Datagram, DatagramIterator } from './Datagram'
 import { ObjectRepository, Repository } from './ObjectRepository'
 import * as error from './Errors'
 
+/**
+ * Represents a client connection to a Client Agent of the Astron cluster.
+ *
+ * @param dc_file - The path/filename of the DC file to parse.
+ * @param host - The IPv4 address of the Astron server. Defaulted to loopback address.
+ * @param port - The port to use in the connection. Defaulted to 6667.
+ *
+ * @public
+ */
 export class ClientRepository extends ObjectRepository {
     protected protocol: AstronProtocol = AstronProtocol.Client
 

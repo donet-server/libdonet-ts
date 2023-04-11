@@ -17,6 +17,17 @@ export type dcFile = Array<Array<string | Array<any>>>
 const enum TAB_METHOD { UNKNOWN = 0, TAB = 1, DOUBLE = 2, QUAD = 4 }
 const IMPORT_FILE_EXTENSION: string = '.js'
 
+/**
+ * Contains the DC file parser to process Distributed Class definitions.
+ *
+ * @remarks
+ * This parser was heavily inspired by an attempt to parse
+ * the DC file by bobbybee using JavaScript which was used in
+ * the Astron 'Web Panel' project, although abandoned in 2014.
+ * {@link https://github.com/Astron/Web-Panel/blob/master/js/dcparser.js}
+ *
+ * @internal
+ */
 export class Parser {
     private _DEBUG_: boolean = MODULE_DEBUG_FLAGS.PARSER
     private fileContent: string = ""
@@ -533,17 +544,22 @@ export class Parser {
     }
 }
 
-/*  So as I started writing the LegacyHash.ts file, I realized how
-    the parsed DC file is used in Astron implementations and realized
-    that an array of arrays might not be the best way to define the parsed file.
-
-    So instead of reworking this parser again, (which I've been spending too much time on)
-    I just defined helper functions below to make reading of the dcFile type easier.
-
-    This is not too different from Astron anyway, since Astron defines a 'File' class
-    which basically has its own helper functions to read the parsed DC objects.
+/**
+ * Provides static utility functions for reading parsed data from the parsed DC file.
+ *
+ * @remarks
+ * So as I started writing the LegacyHash.ts file, I realized how
+ * the parsed DC file is used in Astron implementations and realized
+ * that an array of arrays might not be the best way to define the parsed file.
+ *
+ * So instead of reworking this parser again, (which I've been spending too much time on)
+ * I just defined helper functions below to make reading of the dcFile type easier.
+ *
+ * This is not too different from Astron anyway, since Astron defines a 'File' class
+ * which basically has its own helper functions to read the parsed DC objects.
+ *
+ * @internal
  */
-
 export class DCFileUtils {
     private static count_objects_of_type(file: dcFile, type: string): number {
         let count: number = 0

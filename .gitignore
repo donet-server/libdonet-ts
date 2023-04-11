@@ -2,6 +2,7 @@
 .idea/
 .vscode/
 node_modules/
+package-lock.json
 *.bkp
 *.dtmp
 *.lock

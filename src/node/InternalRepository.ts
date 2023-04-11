@@ -13,6 +13,15 @@ import { MD_PORT, SS_DEFAULT, DBSS_DEFAULT, channel, doID } from './globals'
 import { Datagram, DatagramIterator } from './Datagram'
 import { unique_uint32, unique_uint64 } from './Utils'
 
+/**
+ * Represents an internal connection to the Astron cluster for AI / UberDOG processes.
+ *
+ * @param args - Specify the DC filename, callbacks, AI channel, and other roles' channels.
+ * @param host - The IPv4 address of the Astron server. Defaulted to loopback address.
+ * @param port - The port to use in the connection. Defaulted to 7199.
+ *
+ * @public
+ */
 export class InternalRepository extends ObjectRepository {
     protected protocol: AstronProtocol = AstronProtocol.Internal
     protected ai_channel: channel = BigInt(0) // initialized after socket is connected
