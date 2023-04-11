@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Max-Rodriguez/astron.libts/master/logo/astron.libts.png" align="right" width="50%"/>
+<img src="https://raw.githubusercontent.com/Max-Rodriguez/astron.libts/master/logo/astron.libts.png" width="50%"/>
 
 NodeJS Implementation
 =======================
