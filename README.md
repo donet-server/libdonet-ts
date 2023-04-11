@@ -1,4 +1,4 @@
-<img src="logo/astron.libts.png" width="50%" alt="astron.libts logo"/>
+<img src="logo/astron.libts.png" align="right" width="50%"/>
 
 astron.libts
 ==========
