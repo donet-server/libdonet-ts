@@ -57,6 +57,11 @@ yarn add astron.node
 yarn add astron.chrome
 ```
 
+API Documentation
+==========
+
+#### To view the astron.libts documentation in rendered HTML, [click here.](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Max-Rodriguez/astron.libts/master/docs/index.html)
+
 Contributing
 ==========
 
