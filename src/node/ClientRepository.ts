@@ -22,7 +22,7 @@ import * as error from './Errors'
  * @public
  */
 export class ClientRepository extends ObjectRepository {
-    protected protocol: AstronProtocol = AstronProtocol.Client
+    public readonly protocol: AstronProtocol = AstronProtocol.Client
 
     constructor(dc_file: string, host: string = "127.0.0.1", port: number = CA_PORT) {
         super(dc_file, (repo: Repository)=>{}, (err: Error)=>{}, host, port) // FIXME: Callbacks

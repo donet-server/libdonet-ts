@@ -23,7 +23,7 @@ import { unique_uint32, unique_uint64 } from './Utils'
  * @public
  */
 export class InternalRepository extends ObjectRepository {
-    protected protocol: AstronProtocol = AstronProtocol.Internal
+    public readonly protocol: AstronProtocol = AstronProtocol.Internal
     protected ai_channel: channel = BigInt(0) // initialized after socket is connected
     protected ss_channel: channel = SS_DEFAULT
     protected dbss_channel: channel = DBSS_DEFAULT
@@ -114,7 +114,7 @@ export class InternalRepository extends ObjectRepository {
         this.notify(`Received unhandled message type: ${msg_type}`)
     }
 
-    protected create_message_stub(recipients: Array<channel>, sender?: channel): Datagram {
+    public create_message_stub(recipients: Array<channel>, sender?: channel): Datagram {
         let dg: Datagram = new Datagram()
         dg.add_int8(recipients.length) // dg.add_int8() will write as unsigned integer
         for (let i = 0; i < recipients.length; i++)

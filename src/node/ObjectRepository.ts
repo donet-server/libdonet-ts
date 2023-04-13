@@ -37,7 +37,7 @@ export type InternalHandler = (dgi: DatagramIterator, sender: channel, recipient
  */
 export class ObjectRepository extends Connection {
     protected _DEBUG_: boolean = MODULE_DEBUG_FLAGS.OBJECT_REPOSITORY
-    protected protocol: AstronProtocol = AstronProtocol.default
+    public readonly protocol: AstronProtocol = AstronProtocol.default
     protected dc_file: dcFile
     protected dclass_id_map: Array<Array<string | number>> = []
     protected dclass_view_map: Array<DClassViewMapEntry> = []
@@ -122,11 +122,11 @@ export class ObjectRepository extends Connection {
         throw new error.DClassViewNotFound()
     }
 
-    public dclass_id_to_name(dclass_id: number): void {
+    public dclass_id_to_name(dclass_id: number): string {
         for (let i = 0; i < this.dclass_id_map.length; i++) {
             let dclass_entry: Array<string | number> = this.dclass_id_map[i]
             if (dclass_entry[1] !== dclass_id) continue
-            // @ts-ignore  index '0' of `dclass_entry` is guaranteed to be a number.
+            // @ts-ignore  index '0' of `dclass_entry` is guaranteed to be a string.
             return dclass_entry[0]
         }
         throw new error.DistributedClassNotFound()
@@ -193,17 +193,29 @@ export class ObjectRepository extends Connection {
         })()
     }
 
-    public set_poll_rate(rate: number): void {
-        this.dg_poll_rate = rate // rate in Hz
-    }
-    public add_task(callback: () => void): void {
-        this.tasks.push(callback)
-    }
     protected repo_poll_tasks(): void {
         for (let i = 0; i < this.tasks.length; i++)
             this.tasks[i]()
     }
     protected handle_datagram(dg: Datagram) {
         this.notify('ObjectRepository.handle_datagram() was called, but was not over-ridden.')
+    }
+
+    // ----------- Getters / Setters ------------ //
+
+    public set_poll_rate(rate: number): void {
+        this.dg_poll_rate = rate // rate in Hz
+    }
+    public add_task(callback: () => void): void {
+        this.tasks.push(callback)
+    }
+    public get_dclass_id_map(): Array<Array<string | number>> {
+        return this.dclass_id_map
+    }
+    public get_dclass_view_map(): Array<DClassViewMapEntry> {
+        return this.dclass_view_map
+    }
+    public get_parsed_dc_file(): dcFile {
+        return this.dc_file
     }
 }

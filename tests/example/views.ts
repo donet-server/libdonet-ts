@@ -19,28 +19,28 @@ const DistributedObject = astron.DistributedObject
  */
 
 export class Root extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class RootAI extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class RootAE extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
@@ -54,19 +54,19 @@ export class RootAE extends DistributedObject {
  */
 
 export class AnonymousContact extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class AnonymousContactUD extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
@@ -81,28 +81,28 @@ export class AnonymousContactUD extends DistributedObject {
  */
 
 export class LoginManager extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class LoginManagerAI extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class LoginManagerAE extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
@@ -115,28 +115,28 @@ export class LoginManagerAE extends DistributedObject {
  */
 
 export class DistributedWorld extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class DistributedWorldAI extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class DistributedWorldAE extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
@@ -151,37 +151,37 @@ export class DistributedWorldAE extends DistributedObject {
  */
 
 export class DistributedAvatar extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class DistributedAvatarAI extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class DistributedAvatarAE extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }
 
 export class DistributedAvatarOV extends DistributedObject {
-    protected generate(): void {
+    public generate(): void {
         return
     }
-    protected delete(): void {
+    public delete(): void {
         return
     }
 }

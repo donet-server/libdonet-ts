@@ -118,3 +118,10 @@ export class InvalidDistributedObjectViewType extends Error {
             "as an argument to an ObjectRepository method.")
     }
 }
+
+export class SuspiciousClientBehavior extends Error {
+    constructor() {
+        super("The client tried to perform an action that should be done by Internal Repositories. " +
+              "If this error is bypassed, the Astron client agent will eject the client if this action is attempted.")
+    }
+}
