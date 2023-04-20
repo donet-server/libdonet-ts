@@ -6,11 +6,8 @@ package-lock.json
 *.bkp
 *.dtmp
 *.lock
-*.log
-# TS Build files
+# Build files
 dist/
 tests/*.js
 tests/example/*.js
-# AS build files
-build/
-index.html
+*.log
