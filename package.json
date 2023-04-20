@@ -23,8 +23,7 @@
   },
   "homepage": "https://github.com/Max-Rodriguez/astron.libts",
   "scripts": {
-    "chrome": "yarn tsc -p tsconfig.chrome.json",
-    "node": "yarn tsc -p tsconfig.node.json",
+    "build": "yarn tsc -p tsconfig.build.json",
     "tests": "yarn tsc -p tsconfig.tests.json"
   },
   "devDependencies": {

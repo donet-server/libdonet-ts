@@ -1,15 +1,13 @@
 {
-  "include": ["src/node/*"],
-  "exclude": ["node_modules", "build",
-    "tests"
-  ],
+  "include": ["src/*"],
+  "exclude": ["node_modules", "build", "tests"],
   "compilerOptions": {
     /* Language and Environment */
     "target": "es2016",
     "lib": ["es2019"],
     /* Modules */
     "module": "commonjs",
-    "rootDir": "src/node",
+    "rootDir": "src",
     "moduleResolution": "node",
     /* JavaScript Support */
     "allowJs": false,
