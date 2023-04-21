@@ -13,8 +13,7 @@
     "libastron",
     "otp",
     "networking",
-    "mmo",
-    "distributed"
+    "mmo"
   ],
   "author": "Max Rodriguez <max@vulkray.com>",
   "license": "BSD-3-Clause",
