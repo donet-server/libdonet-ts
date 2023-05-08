@@ -11,6 +11,7 @@ Read the full system / protocol documentation for the Astron server [here](https
 
 **MAJOR MISSING FEATURES:**
 
+- Mapping DClass fields to DistributedObject instance
 - Reading/writing multiple datagrams in one packet
 - Client Repository (including LegacyHash for CLIENT_HELLO handshake)
 - Lots of Astron Internal messages
