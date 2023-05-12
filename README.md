@@ -5,7 +5,7 @@ astron.libts
 
 ![](https://img.shields.io/discord/1066973060357443644?color=blue&label=Discord&logo=discord&logoColor=white) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/astron.libts) ![](https://img.shields.io/github/license/Max-Rodriguez/astron.libts)
 
-An open source implementation of the Astron server Distributed Class protocol for Javascript clients running on a NodeJS environment. Written in TypeScript.
+An open source implementation of the Astron server internal protocol for Javascript applications running on the NodeJS environment. Written in TypeScript.
 
 Read the full system / protocol documentation for the Astron server [here](https://github.com/Astron/Astron).
 
