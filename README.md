@@ -7,6 +7,8 @@ astron.libts
 
 An open source implementation of the Astron server internal protocol for Javascript applications running on the NodeJS environment. Written in TypeScript.
 
+For the client-side implementation of the Astron protocol for the browser, check out [astron.libwasm](https://github.com/Max-Rodriguez/astron.libwasm).
+
 Read the full system / protocol documentation for the Astron server [here](https://github.com/Astron/Astron).
 
 **MAJOR MISSING FEATURES:**
