@@ -1,28 +1,26 @@
-<img src="logo/astron.libts.png" align="right" width="50%"/>
+<img src="logo/libdonet-ts.png" align="right" width="50%"/>
 
-astron.libts
+libdonet-ts
 ==========
 
-![](https://img.shields.io/discord/1066973060357443644?color=blue&label=Discord&logo=discord&logoColor=white) ![](https://img.shields.io/github/last-commit/Max-Rodriguez/astron.libts) ![](https://img.shields.io/github/license/Max-Rodriguez/astron.libts)
+![](https://img.shields.io/discord/1066973060357443644?color=blue&label=Discord&logo=discord&logoColor=white) ![](https://img.shields.io/github/last-commit/donet-server/libdonet-ts) ![](https://img.shields.io/github/license/donet-server/libdonet-ts)
 
-An open source implementation of the Astron server internal protocol for Javascript applications running on the NodeJS environment. Written in TypeScript.
+An open source implementation of the DoNet internal protocol for Javascript applications running on the NodeJS environment. Written in TypeScript.
 
-For the client-side implementation of the Astron protocol for the browser, check out [astron.libwasm](https://github.com/Max-Rodriguez/astron.libwasm).
-
-Read the full system / protocol documentation for the Astron server [here](https://github.com/Astron/Astron).
+Read the full system / protocol documentation for the DoNet server [here](https://github.com/donet-server/donet).
 
 **MAJOR MISSING FEATURES:**
 
 - Mapping DClass fields to DistributedObject instance
 - Reading/writing multiple datagrams in one packet
 - Client Repository (including LegacyHash for CLIENT_HELLO handshake)
-- Lots of Astron Internal messages
+- Lots of internal messages
 - Packing / Unpacking of REQUIRED & OTHER fields
 
 Getting Started
 =============
 
-The major component to an MMO powered by Astron is the Astron daemon itself.
+The major component to an MMO powered by DoNet is the DoNet daemon itself. At this time, DoNet is under development so you can use Astron instead.
 
 Before starting, compile the latest build of Astron using the instructions [here.](https://github.com/Astron/Astron/blob/master/docs/building/build-readme.md)
 
@@ -34,22 +32,22 @@ Astron using the `-DCMAKE_BUILD_TYPE=Debug` flag. This lowers the chance of an I
 Installation
 ==========
 
-The astron.libts repository will be released as an NPM package once it reaches it's first release: `astron.libts`
+The libdonet-ts repository will be released as an NPM package once it reaches it's first release: `libdonet-ts`
 
 The following steps show how it _**will be**_ to install the npm package after the first release.
 ```shell
-npm install astron.libts
+npm install libdonet-ts
 ```
 
 Or if you're using the **yarn** (NPM-based) package manager:
 ```shell
-yarn add astron.libts
+yarn add libdonet-ts
 ```
 
 API Documentation
 ==========
 
-#### To view the astron.libts documentation in rendered HTML, [click here.](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Max-Rodriguez/astron.libts/master/docs/index.html)
+#### To view the libdonet-ts documentation in rendered HTML, [click here.](https://htmlpreview.github.io/?https://raw.githubusercontent.com/donet-server/libdonet-ts/master/docs/index.html)
 
 Contributing
 ==========

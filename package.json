@@ -1,26 +1,26 @@
 {
-  "name": "astron.libts",
+  "name": "libdonet-ts",
   "version": "0.1.0",
-  "description": "An open source implementation of the Astron real-time object networking protocol.",
+  "description": "An open source implementation of the DoNet networking protocol.",
   "main": "dist/index.js",
   "types": "dist/@types",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Max-Rodriguez/astron.libts.git"
+    "url": "https://github.com/donet-server/libdonet-ts.git"
   },
   "keywords": [
-    "astron",
-    "libastron",
+    "donet",
+    "libdonet",
     "otp",
     "networking",
     "mmo"
   ],
-  "author": "Max Rodriguez <max@vulkray.com>",
-  "license": "BSD-3-Clause",
+  "author": "maxrdz <me@maxrdz.com>",
+  "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/Max-Rodriguez/astron.libts/issues"
+    "url": "https://github.com/donet-server/libdonet-ts/issues"
   },
-  "homepage": "https://github.com/Max-Rodriguez/astron.libts",
+  "homepage": "https://github.com/donet-server/libdonet-ts",
   "scripts": {
     "build": "yarn tsc -p tsconfig.build.json",
     "tests": "yarn tsc -p tsconfig.tests.json"
