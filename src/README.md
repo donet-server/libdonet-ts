@@ -1,5 +1,5 @@
-<img src="https://raw.githubusercontent.com/Max-Rodriguez/astron.libts/master/logo/astron.libts.png" width="50%"/>
+<img src="https://raw.githubusercontent.com/donet-server/libdonet-ts/master/logo/libdonet-ts.png" width="50%"/>
 
-astron.libts
+libdonet-ts
 =======================
-This directory holds the source files for the astron.libts implementation.
+This directory holds the source files for the libdonet-ts implementation.
